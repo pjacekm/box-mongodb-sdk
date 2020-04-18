@@ -1,2 +1,2 @@
-# mongodb-cfml-sdk
-MongoDB SDK for ColdFusion
+# box-mongodb-sdk
+MongoDB SDK module for ColdBox and CommandBox
