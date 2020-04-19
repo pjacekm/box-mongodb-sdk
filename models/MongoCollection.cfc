@@ -428,7 +428,16 @@ component output="false" accessors="true" {
 
 
 
-	public void function insertOne(required struct document, struct options={}) {
+	/**
+	 * Inserts one document. 
+	 *
+	 * @document 
+	 * @options 
+	 * 
+	 * Returns newly inserted document, including "_id". 
+	 * Please note that this behavior is CF-specific, original Java driver does not return any value.
+	 */
+	public struct function insertOne(required struct document, struct options={}) {
 		var doc=getUtil().toDocument(arguments.document);
 		var factory=wirebox.getInstance("JavaFactory@box-mongodb-sdk");
 		var insertOneOptions=factory.getJavaObject("com.mongodb.client.model.InsertOneOptions");
@@ -446,6 +455,10 @@ component output="false" accessors="true" {
 		}
 
 		getMongoCollection().insertOne(doc, insertOneOptions);
+
+		//document["_id"]=doc["_id"].toString();
+
+		return getUtil().toCF(doc);
 	}
 
 
