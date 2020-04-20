@@ -37,11 +37,11 @@ component output="false" accessors="true" {
 	*/
 	public void function downloadToStream(required string id, required string destinationFilePath, struct options={}) {
 		var objectId=getUtil().ObjectId(arguments.id);
-		var file=getFactory().getJavaObject("java.io.File").init(arguments.destinationFilePath);
-		var fileOutputStream=getFactory().getJavaObject("java.io.FileOutputStream").init(file);
+		var file=getJavaFactory().getJavaObject("java.io.File").init(arguments.destinationFilePath);
+		var fileOutputStream=getJavaFactory().getJavaObject("java.io.FileOutputStream").init(file);
 
 		if(structCount(arguments.options)){
-			var gridFSDownloadOptions=factory.getJavaObject("com.mongodb.client.gridfs.model.GridFSDownloadOptions");
+			var gridFSDownloadOptions=getJavaFactory().getJavaObject("com.mongodb.client.gridfs.model.GridFSDownloadOptions");
 
 			for(var i in arguments.options){
 				switch(i){
@@ -114,9 +114,9 @@ component output="false" accessors="true" {
 	* Returns ID of created file.
 	*/
 	public string function uploadFromStream(required string fileName, required string sourceFilePath, struct options={}) {
-		var file=getFactory().getJavaObject("java.io.File").init(arguments.sourceFilePath);
-		var fileInputStream=getFactory().getJavaObject("java.io.FileInputStream").init(file);
-		var gridFSUploadOptions=factory.getJavaObject("com.mongodb.client.gridfs.model.GridFSUploadOptions");
+		var file=getJavaFactory().getJavaObject("java.io.File").init(arguments.sourceFilePath);
+		var fileInputStream=getJavaFactory().getJavaObject("java.io.FileInputStream").init(file);
+		var gridFSUploadOptions=getJavaFactory().getJavaObject("com.mongodb.client.gridfs.model.GridFSUploadOptions");
 
 		for(var i in arguments.options){
 			switch(i){
@@ -141,6 +141,6 @@ component output="false" accessors="true" {
 			gridFSUploadOptions
 		);
 		
-		return getUtil().toCF(objectId);
+		return objectId.toString();
 	}
 }

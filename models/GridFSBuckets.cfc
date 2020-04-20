@@ -25,21 +25,22 @@ component output="false" accessors="true" singleton {
 
 	public GridFSBucket function create(required MongoDatabase database, string bucketName="fs") {
 		var buckets=getBuckets();
-		var bucket="";
-		
-		if(structKeyExists(buckets, arguments.database.getName()) and structKeyExists(buckets[arguments.database.getName()], arguments.bucketName)){
-			bucket=buckets[arguments.database.getName()][arguments.bucketName];
-		}
-		else{
-			bucket=getWirebox().getInstance("GridFSBucket@box-mongodb-sdk");
-			var mongoBucket=getFactory().getJavaObject("com.mongodb.client.gridfs.GridFSBuckets").create(
-				arguments.database.getMongoDatabase(),
-				javacast("string", arguments.bucketName)
-			);
-			bucket.setGridFSBucket(mongoBucket);
-			buckets[arguments.database.getName()][arguments.bucketName]=bucket;
+		var cacheKey=hash(arguments.database.getName() & arguments.bucketName);
+
+		if(!structKeyExists(buckets, cacheKey)){
+			lock name="mongoBucketsCache" type="exclusive" throwOnTimeout="true" timeout=30 {
+				if(!structKeyExists(buckets, cacheKey)){
+					var bucket=getWirebox().getInstance("GridFSBucket@box-mongodb-sdk");
+					var mongoBucket=getJavaFactory().getJavaObject("com.mongodb.client.gridfs.GridFSBuckets").create(
+						arguments.database.getMongoDatabase(),
+						javacast("string", arguments.bucketName)
+					);
+					bucket.setGridFSBucket(mongoBucket);
+					buckets[cacheKey]=bucket;
+				}
+			}
 		}
 
-		return bucket;
+		return buckets[cacheKey];
 	}
 }
