@@ -9,6 +9,7 @@ component output="false" accessors="true" {
 
 	// Injected properties (DI)
 	property name="Wirebox" inject="wirebox";
+	property name="Util" inject="Util@box-mongodb-sdk";
 
 	// Local properties
 	property name="MongoIterable" type="any" default="";

@@ -153,7 +153,7 @@ component output="false" accessors="true" {
 	/**
 	* Returns the results of a MongoIterable object as an array of documents
 	*/
-	function mongoIterableToArray(required MongoIterable mongoIterable){
+	function mongoIterableToArray(required any mongoIterable){
 		var aResults = [];
 		var cursor = mongoIterable.iterator();
 		

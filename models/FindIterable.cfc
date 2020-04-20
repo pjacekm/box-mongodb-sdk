@@ -34,7 +34,7 @@ component output="false" extends="MongoIterable" accessors="true" {
 
 	public FindIterable function filter(required struct filter) {
 		getMongoIterable().filter(
-			getUtil().toBsonDocument(arguments.filter)
+			getUtil().toDocument(arguments.filter)
 		);
 		return this;
 	}
@@ -70,7 +70,7 @@ component output="false" extends="MongoIterable" accessors="true" {
 
 	public FindIterable function modifiers(required struct modifiers) {
 		getMongoIterable().modifiers(
-			getUtil().toBsonDocument(arguments.modifiers)
+			getUtil().toDocument(arguments.modifiers)
 		);
 		return this;
 	}
@@ -112,7 +112,7 @@ component output="false" extends="MongoIterable" accessors="true" {
 
 	public FindIterable function sort(required struct sort) {
 		getMongoIterable().sort(
-			getUtil().toBsonDocument(arguments.sort)
+			getUtil().toDocument(arguments.sort)
 		);
 		return this;
 	}
@@ -122,7 +122,7 @@ component output="false" extends="MongoIterable" accessors="true" {
 
 	public FindIterable function projection(required struct projection) {
 		getMongoIterable().projection( 
-			getUtil().toBsonDocument(arguments.projection) 
+			getUtil().toDocument(arguments.projection) 
 		);
 		return this;
 	}
