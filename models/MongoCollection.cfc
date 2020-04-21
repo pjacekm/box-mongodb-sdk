@@ -10,6 +10,7 @@ component output="false" accessors="true" {
 	// Injected properties (DI)
 	property name="Util" inject="Util@box-mongodb-sdk";
 	property name="Wirebox" inject="wirebox";
+	property name="JavaFactory" inject="JavaFactory@box-mongodb-sdk";
 
 	// Local properties
 	property name="MongoCollection" type="any" default="";
@@ -54,8 +55,7 @@ component output="false" accessors="true" {
 
 	public string function createIndex(required struct keys, struct options={}) {
 		var keysObj=getUtil().toDocument(arguments.keys);
-		var factory=wirebox.getInstance("JavaFactory@box-mongodb-sdk");
-		var indexOptions=factory.getJavaObject("com.mongodb.client.model.IndexOptions");
+		var indexOptions=getJavaFactory().getJavaObject("com.mongodb.client.model.IndexOptions");
 
 		for(var i in arguments.options){
 			switch(i){
@@ -76,7 +76,7 @@ component output="false" accessors="true" {
 				break;
 
 				case "expireAfter":
-					var tuObj=factory.getJavaObject("java.util.concurrent.TimeUnit");
+					var tuObj=getJavaFactory().getJavaObject("java.util.concurrent.TimeUnit");
 					var tu=tuObj[arguments.options[i]["timeUnit"]];
 					indexOptions.expireAfter(javacast("long", arguments.options[i]["expireAfter"]), tu);
 				break;
@@ -187,13 +187,12 @@ component output="false" accessors="true" {
 
 	public DistinctIterable function distinct(required string fieldName, struct filter={}) {
 		var distinctIterable=wirebox.getInstance("DistinctIterable@box-mongodb-sdk");
-		var factory=wirebox.getInstance("JavaFactory@box-mongodb-sdk");
 		var query=getUtil().toDocument(arguments.filter);
 
 		var result=getMongoCollection().distinct(
 			javacast("string", arguments.fieldName), 
 			query, 
-			factory.getJavaObject("org.bson.BsonValue").getClass()
+			getJavaFactory().getJavaObject("org.bson.BsonValue").getClass()
 		);
 
 		distinctIterable.setMongoIterable(result);
@@ -241,8 +240,18 @@ component output="false" accessors="true" {
 
 
 
-	function watch(){
-		return getMongoCollection().watch();
+	/**
+	 * Creates a change stream for this collection.
+	 */
+	public ChangeStreamIterable function watch(array pipeline=[]){
+		var changeStreamIterable=wirebox.getInstance("ChangeStreamIterable@box-mongodb-sdk");
+		var filter=getUtil().toDocument(arguments.pipeline);
+
+		changeStreamIterable.setChangeStreamIterable(
+			getMongoCollection().watch(filter)
+		);
+
+		return changeStreamIterable;
 	}
 
 
@@ -250,13 +259,12 @@ component output="false" accessors="true" {
 
 	public struct function findOneAndDelete(struct filter={}, struct options={}) {
 		var filter=getUtil().toDocument(arguments.filter);
-		var factory=wirebox.getInstance("JavaFactory@box-mongodb-sdk");
-		var findOneAndDeleteOptions=factory.getJavaObject("com.mongodb.client.model.FindOneAndDeleteOptions");
+		var findOneAndDeleteOptions=getJavaFactory().getJavaObject("com.mongodb.client.model.FindOneAndDeleteOptions");
 
 		for(var i in arguments.options){
 			switch(i){
 				case "maxTime":
-					var tuObj=factory.getJavaObject("java.util.concurrent.TimeUnit");
+					var tuObj=getJavaFactory().getJavaObject("java.util.concurrent.TimeUnit");
 					var tu=tuObj[arguments.options[i]["timeUnit"]];
 					findOneAndDeleteOptions.maxTime(javacast("long", arguments.options[i]["maxTime"]), tu);
 				break;
@@ -291,8 +299,7 @@ component output="false" accessors="true" {
 
 	public struct function findOneAndReplace(struct filter={}, struct replacement={}, struct options={}) {
 		var filter=getUtil().toDocument(arguments.filter);
-		var factory=wirebox.getInstance("JavaFactory@box-mongodb-sdk");
-		var findOneAndReplaceOptions=factory.getJavaObject("com.mongodb.client.model.FindOneAndReplaceOptions");
+		var findOneAndReplaceOptions=getJavaFactory().getJavaObject("com.mongodb.client.model.FindOneAndReplaceOptions");
 		var replaceDocument=getUtil().toDocument(arguments.replacement);
 
 		for(var i in arguments.options){
@@ -302,7 +309,7 @@ component output="false" accessors="true" {
 				break;
 
 				case "maxTime":
-					var tuObj=factory.getJavaObject("java.util.concurrent.TimeUnit");
+					var tuObj=getJavaFactory().getJavaObject("java.util.concurrent.TimeUnit");
 					var tu=tuObj[arguments.options[i]["timeUnit"]];
 					findOneAndReplaceOptions.maxTime(javacast("long", arguments.options[i]["maxTime"]), tu);
 				break;
@@ -314,7 +321,7 @@ component output="false" accessors="true" {
 
 				case "returnDocument":
 					// Two values currently supported: BEFORE, AFTER. Default driver value: BEFORE.
-					var returnDocument=factory.getJavaObject("com.mongodb.client.model.ReturnDocument");
+					var returnDocument=getJavaFactory().getJavaObject("com.mongodb.client.model.ReturnDocument");
 					findOneAndReplaceOptions.returnDocument(returnDocument[uCase(arguments.options[i])]);
 				break;
 
@@ -347,8 +354,7 @@ component output="false" accessors="true" {
 
 	public struct function findOneAndUpdate(struct filter={}, struct update={}, struct options={}) {
 		var filter=getUtil().toDocument(arguments.filter);
-		var factory=wirebox.getInstance("JavaFactory@box-mongodb-sdk");
-		var findOneAndUpdateOptions=factory.getJavaObject("com.mongodb.client.model.FindOneAndUpdateOptions");
+		var findOneAndUpdateOptions=getJavaFactory().getJavaObject("com.mongodb.client.model.FindOneAndUpdateOptions");
 		var updateDocument=getUtil().toDocument(arguments.update);
 
 		for(var i in arguments.options){
@@ -358,7 +364,7 @@ component output="false" accessors="true" {
 				break;
 
 				case "maxTime":
-					var tuObj=factory.getJavaObject("java.util.concurrent.TimeUnit");
+					var tuObj=getJavaFactory().getJavaObject("java.util.concurrent.TimeUnit");
 					var tu=tuObj[arguments.options[i]["timeUnit"]];
 					findOneAndUpdateOptions.maxTime(javacast("long", arguments.options[i]["maxTime"]), tu);
 				break;
@@ -370,7 +376,7 @@ component output="false" accessors="true" {
 
 				case "returnDocument":
 					// Two values currently supported: BEFORE, AFTER. Default driver value: BEFORE.
-					var returnDocument=factory.getJavaObject("com.mongodb.client.model.ReturnDocument");
+					var returnDocument=getJavaFactory().getJavaObject("com.mongodb.client.model.ReturnDocument");
 					findOneAndUpdateOptions.returnDocument(returnDocument[uCase(arguments.options[i])]);
 				break;
 
@@ -403,8 +409,7 @@ component output="false" accessors="true" {
 
 	public void function insertMany(required array documents, struct options={}) {
 		var docs=getUtil().toDocument(arguments.documents);
-		var factory=wirebox.getInstance("JavaFactory@box-mongodb-sdk");
-		var insertManyOptions=factory.getJavaObject("com.mongodb.client.model.InsertManyOptions");
+		var insertManyOptions=getJavaFactory().getJavaObject("com.mongodb.client.model.InsertManyOptions");
 
 		for(var i in arguments.options){
 			switch(i){
@@ -439,8 +444,7 @@ component output="false" accessors="true" {
 	 */
 	public struct function insertOne(required struct document, struct options={}) {
 		var doc=getUtil().toDocument(arguments.document);
-		var factory=wirebox.getInstance("JavaFactory@box-mongodb-sdk");
-		var insertOneOptions=factory.getJavaObject("com.mongodb.client.model.InsertOneOptions");
+		var insertOneOptions=getJavaFactory().getJavaObject("com.mongodb.client.model.InsertOneOptions");
 
 		for(var i in arguments.options){
 			switch(i){
@@ -495,9 +499,8 @@ component output="false" accessors="true" {
 	* https://docs.mongodb.com/manual/reference/command/renameCollection/#dbcmd.renameCollection
 	*/
 	public void function renameCollection(required string newCollectionNamespace, struct options={}) {
-		var factory=wirebox.getInstance("JavaFactory@box-mongodb-sdk");
-		var mongoNamespace=factory.getJavaObject("com.mongodb.MongoNamespace");
-		var renameCollectionOptions=factory.getJavaObject("com.mongodb.client.model.RenameCollectionOptions");
+		var mongoNamespace=getJavaFactory().getJavaObject("com.mongodb.MongoNamespace");
+		var renameCollectionOptions=getJavaFactory().getJavaObject("com.mongodb.client.model.RenameCollectionOptions");
 
 		mongoNamespace.init(javacast("string", arguments.newCollectionNamespace));
 
@@ -520,8 +523,7 @@ component output="false" accessors="true" {
 
 
 	public UpdateResult function replaceOne(struct filter={}, struct replacement={}, struct options={}) {
-		var factory=wirebox.getInstance("JavaFactory@box-mongodb-sdk");
-		var updateOptions=factory.getJavaObject("com.mongodb.client.model.UpdateOptions");
+		var updateOptions=getJavaFactory().getJavaObject("com.mongodb.client.model.UpdateOptions");
 		var filter=getUtil().toDocument(arguments.filter);
 		var replaceDocument=getUtil().toDocument(arguments.replacement);
 		var updateResult=wirebox.getInstance("UpdateResult@box-mongodb-sdk");
@@ -557,8 +559,7 @@ component output="false" accessors="true" {
 
 
 	public UpdateResult function updateMany(struct filter={}, struct replacement={}, struct options={}) {
-		var factory=wirebox.getInstance("JavaFactory@box-mongodb-sdk");
-		var updateOptions=factory.getJavaObject("com.mongodb.client.model.UpdateOptions");
+		var updateOptions=getJavaFactory().getJavaObject("com.mongodb.client.model.UpdateOptions");
 		var filter=getUtil().toDocument(arguments.filter);
 		var replaceDocument=getUtil().toDocument(arguments.replacement);
 		var updateResult=wirebox.getInstance("UpdateResult@box-mongodb-sdk");
@@ -594,8 +595,7 @@ component output="false" accessors="true" {
 
 
 	public UpdateResult function updateOne(struct filter={}, struct replacement={}, struct options={}) {
-		var factory=wirebox.getInstance("JavaFactory@box-mongodb-sdk");
-		var updateOptions=factory.getJavaObject("com.mongodb.client.model.UpdateOptions");
+		var updateOptions=getJavaFactory().getJavaObject("com.mongodb.client.model.UpdateOptions");
 		var filter=getUtil().toDocument(arguments.filter);
 		var replaceDocument=getUtil().toDocument(arguments.replacement);
 		var updateResult=wirebox.getInstance("UpdateResult@box-mongodb-sdk");

@@ -224,14 +224,41 @@ component output="false" accessors="true" {
 			}
 			//loop our keys to ensure first-level items with sub-documents objects are converted
 			for(var key in cfObj){
-				if(!isNull(cfObj[key]) && ( isArray(cfObj[key]) || isStruct(cfObj[key]) ) ) cfObj[key] = toCF(cfObj[key]);
+				if(!isNull(cfObj[key]) && ( isArray(cfObj[key]) || isStruct(cfObj[key]) ) ){
+					cfObj[key] = toCF(cfObj[key]);
+				}
+				else if(!isNull(cfObj[key]) && isObject(cfObj[key])){
+					switch(getMetadata(cfObj[key]).getCanonicalName()){
+						case "org.bson.BsonString":
+							cfObj[key]=cfObj[key].getValue();
+						break;
+
+						case "org.bson.types.ObjectId":
+							cfObj[key]=cfObj[key].toString();
+						break;
+						
+						case "org.bson.BsonObjectId": 
+							cfObj[key]=cfObj[key].getValue().toString();
+						break;
+
+						case "org.bson.BsonTimestamp":
+							cfObj[key]=cfObj[key].getValue();
+						break;
+					
+						default:
+							//writeDump( getMetadata(cfObj[key]).getCanonicalName() & " TODO:" ); abort;
+							
+						break;
+					}
+					
+				}
 			}
 		}
 
 		//auto-stringify _id 
-		if(isStruct(cfObj) && structKeyExists(cfObj,'_id') && !isSimpleValue(cfObj['_id'])){
+		/* if(isStruct(cfObj) && structKeyExists(cfObj,'_id') && !isSimpleValue(cfObj['_id'])){
 			cfObj['_id'] = cfObj['_id'].toString();
-		} 
+		}  */
 
 		return cfObj;
 	}

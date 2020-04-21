@@ -10,7 +10,7 @@ component output="false" extends="MongoIterable" accessors="true" {
 	* Specify the MapReduceAction to be used when writing to a collection.
 	*/
 	public MapReduceIterable function action(required string action) {
-		var mrObj=getFactory().getJavaObject("com.mongodb.client.MapReduceIterable");
+		var mrObj=getJavaFactory().getJavaObject("com.mongodb.client.MapReduceIterable");
 		var mr=mrObj[uCase(arguments.action)]; // Currently supported: MERGE, REDUCE, REPLACE
 		getMongoIterable().action(mr);
 		return this;
@@ -106,7 +106,7 @@ component output="false" extends="MongoIterable" accessors="true" {
 	* @timeUnit literal constant name, as described in https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/TimeUnit.html?is-external=true
 	*/
 	public MapReduceIterable function maxTime(required numeric maxTime, required string timeUnit) {
-		var tuObj=getFactory().getJavaObject("java.util.concurrent.TimeUnit");
+		var tuObj=getJavaFactory().getJavaObject("java.util.concurrent.TimeUnit");
 		var tu=tuObj[uCase(arguments.timeUnit)];
 		getMongoIterable().maxTime(javacast("long", arguments.maxTime), tu);
 		return this;

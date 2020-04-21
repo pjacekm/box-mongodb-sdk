@@ -10,6 +10,7 @@ component output="false" accessors="true" {
 	// Injected properties (DI)
 	property name="Wirebox" inject="wirebox";
 	property name="Util" inject="Util@box-mongodb-sdk";
+	property name="JavaFactory" inject="JavaFactory@box-mongodb-sdk";
 
 	// Local properties
 	property name="MongoIterable" type="any" default="";
@@ -31,6 +32,15 @@ component output="false" accessors="true" {
 	public MongoCursor function iterator() {
 		return getWirebox().getInstance("MongoCursor@box-mongodb-sdk").setMongoCursor(
 			getMongoIterable().iterator() 
+		);
+	}
+
+
+
+
+	public MongoCursor function cursor() {
+		return getWirebox().getInstance("MongoCursor@box-mongodb-sdk").setMongoCursor(
+			getMongoIterable().cursor() 
 		);
 	}
 

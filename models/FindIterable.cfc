@@ -10,9 +10,23 @@ component output="false" extends="MongoIterable" accessors="true" {
 	/**
 	* Sets the number of documents to return per batch
 	*/
-	public MongoIterable function batchSize(required numeric batchSize){
+	public FindIterable function batchSize(required numeric batchSize){
 		getMongoIterable().batchSize(
 			javacast("int", arguments.batchSize)
+		);
+		return this;
+	}
+
+
+
+	/**
+	 * Sets the collation options 
+	 *
+	 * @collation 
+	 */
+	public FindIterable function collation(required Collation collation) {
+		getMongoIterable().collation(
+			arguments.collation.build()
 		);
 		return this;
 	}
@@ -46,7 +60,7 @@ component output="false" extends="MongoIterable" accessors="true" {
 	* @timeUnit literal constant name, as described in https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/TimeUnit.html?is-external=true
 	*/
 	public FindIterable function maxAwaitTime(required numeric maxAwaitTime, required string timeUnit) {
-		var tuObj=getFactory().getObject("java.util.concurrent.TimeUnit");
+		var tuObj=getJavaFactory().getJavaObject("java.util.concurrent.TimeUnit");
 		var tu=tuObj[uCase(arguments.timeUnit)];
 		getMongoIterable().maxAwaitTime(javacast("long", arguments.maxAwaitTime), tu);
 		return this;
@@ -59,19 +73,9 @@ component output="false" extends="MongoIterable" accessors="true" {
 	* @timeUnit literal constant name, as described in https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/TimeUnit.html?is-external=true
 	*/
 	public FindIterable function maxTime(required numeric maxTime, required string timeUnit) {
-		var tuObj=getFactory().getObject("java.util.concurrent.TimeUnit");
+		var tuObj=getJavaFactory().getJavaObject("java.util.concurrent.TimeUnit");
 		var tu=tuObj[uCase(arguments.timeUnit)];
 		getMongoIterable().maxTime(javacast("long", arguments.maxTime), tu);
-		return this;
-	}
-
-
-
-
-	public FindIterable function modifiers(required struct modifiers) {
-		getMongoIterable().modifiers(
-			getUtil().toDocument(arguments.modifiers)
-		);
 		return this;
 	}
 
