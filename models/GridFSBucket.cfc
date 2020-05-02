@@ -140,6 +140,8 @@ component output="false" accessors="true" {
 			fileInputStream,
 			gridFSUploadOptions
 		);
+
+		fileInputStream.close();
 		
 		return objectId.toString();
 	}
