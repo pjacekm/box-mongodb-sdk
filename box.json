@@ -1,6 +1,6 @@
 {
     "name":"MongoDB connectivity package for ColdBox and CommandBox",
-    "version":"1.0.0",
+    "version":"1.0.1",
     "author":"pjacekm@gmail.com",
     "location":"https://github.com/pjacekm/box-mongodb-sdk/archive/master.zip",
     "homepage":"https://github.com/pjacekm/box-mongodb-sdk",
