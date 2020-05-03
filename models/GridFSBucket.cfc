@@ -67,6 +67,8 @@ component output="false" accessors="true" {
 				fileOutputStream
 			);
 		}
+
+		fileOutputStream.close();
 		
 	}
 
