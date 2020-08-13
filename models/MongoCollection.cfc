@@ -388,6 +388,10 @@ component output="false" accessors="true" {
 				case "upsert":
 					findOneAndUpdateOptions.upsert(javacast("boolean", arguments.options[i]));
 				break;
+
+				case "arrayFilters":
+					updateOptions.arrayFilters( getUtil().toDocument(arguments.options[i]) );
+				break;
 			
 				default:
 					throw(type = "box-mongodb-sdk.optionNotImplementedException", message = "Option not implemented", detail="");
@@ -573,6 +577,10 @@ component output="false" accessors="true" {
 				case "upsert":
 					updateOptions.upsert(javacast("boolean", arguments.options[i]));
 				break;
+
+				case "arrayFilters":
+					updateOptions.arrayFilters( getUtil().toDocument(arguments.options[i]) );
+				break;
 			
 				default:
 					throw(type = "box-mongodb-sdk.optionNotImplementedException", message = "Option not implemented", detail="");
@@ -608,6 +616,10 @@ component output="false" accessors="true" {
 
 				case "upsert":
 					updateOptions.upsert(javacast("boolean", arguments.options[i]));
+				break;
+
+				case "arrayFilters":
+					updateOptions.arrayFilters( getUtil().toDocument(arguments.options[i]) );
 				break;
 			
 				default:
