@@ -628,11 +628,7 @@ component output="false" accessors="true" {
 			}
 		}
 
-		var result=getMongoCollection().updateOne(filter, replaceDocument, updateOptions);
-		
-		if(isNull(result)){
-			throw(type = "box-mongodb-sdk.documentNotFoundException", message = "Document not found", detail="");
-		}
+		var result=getMongoCollection().updateOne(filter, updateDocument, updateOptions);
 
 		updateResult.setUpdateResult(result);
 
