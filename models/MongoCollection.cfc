@@ -562,10 +562,10 @@ component output="false" accessors="true" {
 
 
 
-	public UpdateResult function updateMany(struct filter={}, struct replacement={}, struct options={}) {
+	public UpdateResult function updateMany(struct filter={}, struct update={}, struct options={}) {
 		var updateOptions=getJavaFactory().getJavaObject("com.mongodb.client.model.UpdateOptions");
 		var filter=getUtil().toDocument(arguments.filter);
-		var replaceDocument=getUtil().toDocument(arguments.replacement);
+		var replaceDocument=getUtil().toDocument(arguments.update);
 		var updateResult=wirebox.getInstance("UpdateResult@box-mongodb-sdk");
 
 		for(var i in arguments.options){
@@ -602,10 +602,10 @@ component output="false" accessors="true" {
 
 
 
-	public UpdateResult function updateOne(struct filter={}, struct replacement={}, struct options={}) {
+	public UpdateResult function updateOne(struct filter={}, struct update={}, struct options={}) {
 		var updateOptions=getJavaFactory().getJavaObject("com.mongodb.client.model.UpdateOptions");
 		var filter=getUtil().toDocument(arguments.filter);
-		var replaceDocument=getUtil().toDocument(arguments.replacement);
+		var updateDocument=getUtil().toDocument(arguments.update);
 		var updateResult=wirebox.getInstance("UpdateResult@box-mongodb-sdk");
 
 		for(var i in arguments.options){
