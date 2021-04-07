@@ -20,34 +20,99 @@ component output="false" accessors="true" {
 
 
 
-	function mapToMongo(required value){
-		if(isObject(value)) {
-			switch(listLast(getMetadata(value).name, ".")){
-				case "ObjectId":
-					return value.getObjectId();
-				break;
+	/**
+	 * Translates objects into Java objects understood by MongoDB.
+	 * Currently does it by extracting underlying Java objects from CF wrapper objects (all of which should implement getBaseJavaObject() method). 
+	 * Returns unchanged argument in case it's a Java object.
+	 * Goes over structs and arrays recursively. 
+	 *
+	 * @object Simple value, struct, array or CF wrapper object (e.g. Document, ObjectId, etc.) or Java object (e.g. "org.bson.Document", "org.bson.types.ObjectId", etc.)
+	 */
+	function toMongo(required object){
+		// Nested methods
+		var structRecurse=function(required struct str){
+			for(var key in arguments.str){
+				if( isNull( str[key] ) ){
 
-				case "Document":
-					return value.getMongoDocument();
-				break;
-			
-				default:
-					writeDump("unsupported object");
-					writeDump(value); abort;
-				break;
+				}
+				else if ( isObject( str[key] ) ){
+					arguments.str[key]=toMongo(arguments.str[key]);
+				}
+				else if ( isStruct( arguments.str[key] ) ) {
+					arguments.str[key]=structRecurse(arguments.str[key]);
+				}
+				else if ( isArray( arguments.str[key] ) ) {
+					arguments.str[key]=arrayRecurse(arguments.str[key]);
+				}
+				else{
+
+				}
 			}
+
+			// Convert to native Java map
+			return getJavaFactory().getJavaObject("java.util.HashMap").init(arguments.str);
+		}
+
+		var arrayRecurse=function(required array arr){
+			for (var i = 1; i <= arguments.arr.len(); i++) {
+				if( isNull( arguments.arr[i] ) ){
+					
+				}
+				else if ( isObject( arguments.arr[i] ) ){
+					arguments.arr[i]=toMongo(arguments.arr[i]);
+				}
+				else if ( isStruct( arguments.arr[i] ) ) {
+					arguments.arr[i]=structRecurse(arguments.arr[i]);
+				}
+				else if ( isArray( arguments.arr[i] ) ) {
+					arguments.arr[i]=arrayRecurse(arguments.arr[i]);
+				}
+				else{
+					// do nothing
+				}
+			}
+
+			// Convert to native Java array
+			return getJavaFactory().getJavaObject("java.util.ArrayList").init(arguments.arr);
+		}
+
+
+		if( isObject( arguments.object ) ){
+			var metadata=getMetadata(arguments.object);
+
+			// Detect whether argument is a CF wrapper object or raw Java object
+			if(isStruct(metadata) && metadata.keyExists("type") && metadata["type"] == "component"){
+				// CF wrapper object
+				switch(metadata["name"]){
+					/* case "":
+						
+					break; */
+				
+					default:
+						// Return underlying Java object
+						return arguments.object.getBaseJavaObject();
+					break;
+				}
+			}
+			else if(isObject(metadata)){
+				// Assuming Java object
+				return arguments.object;
+			}
+			else{
+				// TODO: determine whether to convert to native Java, returning unchanged argument for now
+				return arguments.object;
+			}
+		}
+		else if( isStruct( arguments.object ) ){
+			return structRecurse(arguments.object);
+		}
+		else if( isArray( arguments.object ) ){
+			return arrayRecurse(arguments.object);
 		}
 		else{
-			switch(getMetadata(value).getCanonicalName()){
-				case "java.lang.String":
-					return value;
-				break;
-			
-				default:
-					return value;
-				break;
-			}
+			return arguments.object;
 		}
+		
 	}
 
 
@@ -153,7 +218,7 @@ component output="false" accessors="true" {
 	/**
 	* Returns the results of a MongoIterable object as an array of documents
 	*/
-	function mongoIterableToArray(required any mongoIterable){
+	function mongoIterableToArray(required MongoIterable mongoIterable){
 		var aResults = [];
 		var cursor = mongoIterable.iterator();
 		
@@ -229,10 +294,6 @@ component output="false" accessors="true" {
 				}
 				else if(!isNull(cfObj[key]) && isObject(cfObj[key])){
 					switch(getMetadata(cfObj[key]).getCanonicalName()){
-						case "org.bson.BsonString":
-							cfObj[key]=cfObj[key].getValue();
-						break;
-
 						case "org.bson.types.ObjectId":
 							cfObj[key]=cfObj[key].toString();
 						break;
@@ -241,13 +302,12 @@ component output="false" accessors="true" {
 							cfObj[key]=cfObj[key].getValue().toString();
 						break;
 
-						case "org.bson.BsonTimestamp":
-							cfObj[key]=cfObj[key].getValue();
+						case "java.time.Instant":
+							cfObj[key]=getJavaFactory().getJavaObject("java.util.Date").from(cfObj[key]);
 						break;
-					
+
 						default:
-							//writeDump( getMetadata(cfObj[key]).getCanonicalName() & " TODO:" ); abort;
-							
+							cfObj[key]=cfObj[key].getValue();
 						break;
 					}
 					
