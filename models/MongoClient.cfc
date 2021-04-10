@@ -15,6 +15,11 @@ component output="false" accessors="true" {
 	property name="MongoClient" type="any";
 
 	public function init(){
+
+		lock name="mongoDatabasesCache" type="exclusive" timeout=2 {
+			variables["mongoDatabasesCache"]={};
+		}
+
 		return this;
 	}
 
@@ -22,12 +27,22 @@ component output="false" accessors="true" {
 
 
 	public function getDatabase(required string databaseName) {
-		var database=getWirebox().getInstance("MongoDatabase@box-mongodb-sdk");
-		var mongoDatabase=getMongoClient().getDatabase(
-			javaCast("string", arguments.databaseName)
-		);
-		database.setMongoDatabase(mongoDatabase);
-		return database;
+
+		if(!structKeyExists(variables["mongoDatabasesCache"], arguments.databaseName)){
+			lock name="mongoDatabasesCache" type="exclusive" throwOnTimeout="true" timeout=10 {
+				if(!structKeyExists(variables["mongoDatabasesCache"], arguments.databaseName)){
+					var database=getWirebox().getInstance("MongoDatabase@box-mongodb-sdk");
+					var mongoDatabase=getMongoClient().getDatabase(
+						javaCast("string", arguments.databaseName)
+					);
+					database.setMongoDatabase(mongoDatabase);
+
+					variables["mongoDatabasesCache"][arguments.databaseName]=database;
+				}
+			}
+		}
+
+		return variables["mongoDatabasesCache"][arguments.databaseName];
 	}
 
 
@@ -48,6 +63,16 @@ component output="false" accessors="true" {
 		var listDatabasesIterable=getWirebox().getInstance("ListDatabasesIterable@box-mongodb-sdk");
 		listDatabasesIterable.setMongoIterable(dbs);
 		return listDatabasesIterable;
+	}
+
+
+
+
+	/**
+	 * Close the client, which will close all underlying cached resources, including, for example, sockets and background monitoring threads.
+	 */
+	public void function close() {
+		getMongoClient().close();
 	}
 
 

@@ -13,11 +13,12 @@ component output="false" accessors="true" {
 
 	// Local properties
 	property name="MongoDatabase" type="any" default="";
-	property name="Collections" type="struct" setter="false";
 
 	public function init(){
-		// Initialize default complex properties
-		variables["Collections"]={};
+		
+		lock name="mongoCollectionsCache" type="exclusive" timeout=2 {
+			variables["mongoCollectionsCache"]={};
+		}
 
 		return this;
 	}
@@ -56,20 +57,22 @@ component output="false" accessors="true" {
 	* Gets MongoCollection wrapper object
 	*/
 	public any function getCollection(required string collectionName) {
-		var collections=getCollections();
-		var collection="";
+		
+		if(!structKeyExists(variables["mongoCollectionsCache"], arguments.collectionName)){
+			lock name="mongoCollectionsCache" type="exclusive" throwOnTimeout="true" timeout=10 {
+				if(!structKeyExists(variables["mongoCollectionsCache"], arguments.collectionName)){
 
-		if(structKeyExists(collections, arguments.collectionName)){
-			collection=collections[arguments.collectionName];
-		}
-		else{
-			collection=getWirebox().getInstance("MongoCollection@box-mongodb-sdk");
-			var mongoCollection=getMongoDatabase().getCollection(javacast("string", arguments.collectionName));
-			collection.setMongoCollection(mongoCollection);
-			collections[arguments.collectionName]=collection;
+					var collection=getWirebox().getInstance("MongoCollection@box-mongodb-sdk");
+					var mongoCollection=getMongoDatabase().getCollection(javacast("string", arguments.collectionName));
+					collection.setMongoCollection(mongoCollection);
+					
+					variables["mongoCollectionsCache"][arguments.collectionName]=collection;
+				
+				}
+			}
 		}
 
-		return collection;
+		return variables["mongoCollectionsCache"][arguments.collectionName];
 	}
 
 
