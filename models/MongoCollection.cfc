@@ -96,6 +96,18 @@ component output="false" accessors="true" {
 
 
 
+	/**
+	 * Create multiple indexes.
+	 * Returns an array with index names.
+	 *
+	 * @indexes Array of structs 
+	 * 	[
+	 * 		{
+	 * 			keys: <Document>,
+	 * 			options: <IndexOptions>
+	 * 		}
+	 * 	]
+	 */
 	public array function createIndexes(required array indexes) {
 		var response=[];
 

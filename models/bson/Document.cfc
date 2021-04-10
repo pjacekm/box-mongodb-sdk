@@ -133,4 +133,35 @@ component output="false" accessors="true" {
 	public boolean function isEmpty() {
 		return getMongoDocument().isEmpty();
 	}
+
+
+
+
+	/**
+	 * Render into a BsonDocument.
+	 * NOTE: currently returns Java object, consider wrapping in CF object.
+	 */
+	public function toBsonDocument(){
+		return getMongoDocument().toBsonDocument();
+	}
+
+
+
+
+	/**
+	 * Gets a JSON representation of this document.
+	 */
+	public string function toJson(){
+		return getMongoDocument().toBsonDocument().toJson();
+	}
+
+
+
+
+	/**
+	 * Returns numeric representation of the object. Used for e.g. comparisons.
+	 */
+	public numeric function hashCode(){
+		return getMongoDocument().hashCode();
+	}
 }
