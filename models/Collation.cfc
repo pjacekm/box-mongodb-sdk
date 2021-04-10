@@ -33,6 +33,16 @@ component output="false" accessors="true" {
 
 
 
+	/**
+	 * Returns underlying java object. Used in util conversion methods.
+	 */
+	public any function getBaseJavaObject() {
+		return getMongoCollation();
+	}
+
+
+
+
 	public Collation function locale(required string locale) {
 		getMongoCollation().locale(javaCast("string", arguments.locale));
 		return this;

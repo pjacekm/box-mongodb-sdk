@@ -9,6 +9,7 @@ component output="false" accessors="true" {
 
 	// Injected properties (DI)
 	property name="JavaFactory" inject="JavaFactory@box-mongodb-sdk";
+	property name="BsonFactory" inject="BsonFactory@box-mongodb-sdk";
 
 	// Local properties
 	property name="NullSupport" type="boolean" default="false"; // For future use
@@ -29,6 +30,7 @@ component output="false" accessors="true" {
 	 * @object Simple value, struct, array or CF wrapper object (e.g. Document, ObjectId, etc.) or Java object (e.g. "org.bson.Document", "org.bson.types.ObjectId", etc.)
 	 */
 	function toMongo(required object){
+		
 		// Nested methods
 		var structRecurse=function(required struct str){
 			for(var key in arguments.str){
@@ -45,12 +47,12 @@ component output="false" accessors="true" {
 					arguments.str[key]=arrayRecurse(arguments.str[key]);
 				}
 				else{
-
+					// do nothing
 				}
 			}
 
-			// Convert to native Java map
-			return getJavaFactory().getJavaObject("java.util.HashMap").init(arguments.str);
+			// Convert to native Document
+			return getJavaFactory().getJavaObject("org.bson.Document").init(arguments.str);
 		}
 
 		var arrayRecurse=function(required array arr){
@@ -74,6 +76,164 @@ component output="false" accessors="true" {
 
 			// Convert to native Java array
 			return getJavaFactory().getJavaObject("java.util.ArrayList").init(arguments.arr);
+		}
+
+
+		if( isObject( arguments.object ) ){
+			var metadata=getMetadata(arguments.object);
+
+			// Detect whether argument is a CF wrapper object or raw Java object
+			if(isStruct(metadata) && metadata.keyExists("type") && metadata["type"] == "component"){
+				// CF wrapper object
+				switch(metadata["name"]){
+					/* case "":
+						
+					break; */
+				
+					default:
+						// Return underlying Java object
+						return arguments.object.getBaseJavaObject();
+					break;
+				}
+			}
+			else if(isObject(metadata)){
+				// Assuming Java object
+				return arguments.object;
+			}
+			else{
+				// TODO: determine whether to convert to native Java, returning unchanged argument for now
+				return arguments.object;
+			}
+		}
+		else if( isStruct( arguments.object ) ){
+			return structRecurse(arguments.object);
+		}
+		else if( isArray( arguments.object ) ){
+			return arrayRecurse(arguments.object);
+		}
+		else{
+			return arguments.object;
+		}
+		
+	}
+
+
+
+
+	/**
+	 * Translates Java/MongoDB objects into CF objects.
+	 * Returns unchanged argument in case it's a CF object.
+	 * Goes over structs and arrays recursively. 
+	 *
+	 * @object Java object (e.g. "org.bson.Document", "org.bson.types.ObjectId", etc.)
+	 */
+	function toCF(required object){
+		writeDump("toCF: TODO:"); abort;
+		
+
+
+		/* Old method:
+			if(isNull(BasicDBObject)) return;
+			
+			//if we're in a loop iteration and the array item is simple, return it
+			if(isSimpleValue(BasicDBObject)) return BasicDbObject;
+
+			if(isArray(BasicDBObject)){
+				var cfObj = [];
+				for(var obj in BasicDBObject){
+					arrayAppend(cfObj, toCF(obj));
+				}
+			}
+			else {
+				var cfObj = {};
+
+				try{
+					cfObj.putAll(BasicDBObject);
+				}
+				catch (any e){
+					if(getMetaData(BasicDBObject).getName() == 'org.bson.BsonUndefined') return javacast("null", "");
+
+					return BasicDBObject;
+				}
+				//loop our keys to ensure first-level items with sub-documents objects are converted
+				for(var key in cfObj){
+					if(!isNull(cfObj[key]) && ( isArray(cfObj[key]) || isStruct(cfObj[key]) ) ){
+						cfObj[key] = toCF(cfObj[key]);
+					}
+					else if(!isNull(cfObj[key]) && isObject(cfObj[key])){
+						switch(getMetadata(cfObj[key]).getCanonicalName()){
+							case "org.bson.types.ObjectId":
+								cfObj[key]=cfObj[key].toString();
+							break;
+							
+							case "org.bson.BsonObjectId": 
+								cfObj[key]=cfObj[key].getValue().toString();
+							break;
+
+							case "java.time.Instant":
+								cfObj[key]=getJavaFactory().getJavaObject("java.util.Date").from(cfObj[key]);
+							break;
+
+							default:
+								cfObj[key]=cfObj[key].getValue();
+							break;
+						}
+						
+					}
+				}
+			}
+
+		
+			return cfObj;
+		*/
+
+
+		
+		// Nested methods
+		var structRecurse=function(required struct str){
+			for(var key in arguments.str){
+				if( isNull( str[key] ) ){
+
+				}
+				else if ( isObject( str[key] ) ){
+					arguments.str[key]=toCF(arguments.str[key]);
+				}
+				else if ( isStruct( arguments.str[key] ) ) {
+					arguments.str[key]=structRecurse(arguments.str[key]);
+				}
+				else if ( isArray( arguments.str[key] ) ) {
+					arguments.str[key]=arrayRecurse(arguments.str[key]);
+				}
+				else{
+					// do nothing
+				}
+			}
+
+			// Convert to Document
+			return getBsonFactory().Document(arguments.str);
+		}
+
+		var arrayRecurse=function(required array arr){
+			for (var i = 1; i <= arguments.arr.len(); i++) {
+				if( isNull( arguments.arr[i] ) ){
+					
+				}
+				else if ( isObject( arguments.arr[i] ) ){
+					arguments.arr[i]=toCF(arguments.arr[i]);
+				}
+				else if ( isStruct( arguments.arr[i] ) ) {
+					arguments.arr[i]=structRecurse(arguments.arr[i]);
+				}
+				else if ( isArray( arguments.arr[i] ) ) {
+					arguments.arr[i]=arrayRecurse(arguments.arr[i]);
+				}
+				else{
+					// do nothing
+				}
+			}
+
+			// Return as-is
+			return arguments.arr;
 		}
 
 
@@ -216,9 +376,9 @@ component output="false" accessors="true" {
 
 
 	/**
-	* Returns the results of a MongoIterable object as an array of documents
+	* DEPRECATED: Returns the results of a MongoIterable object as an array of documents
 	*/
-	function mongoIterableToArray(required MongoIterable mongoIterable){
+	function mongoIterableToArray(required any mongoIterable){
 		var aResults = [];
 		var cursor = mongoIterable.iterator();
 		
@@ -256,70 +416,5 @@ component output="false" accessors="true" {
 		cursor.close();
 
 		return toCF(aResults);
-	}
-
-
-
-
-	/**
-	* Converts a Mongo DBObject to a ColdFusion structure
-	*/
-	function toCF(required any BasicDBObject){
-		if(isNull(BasicDBObject)) return;
-		
-		//if we're in a loop iteration and the array item is simple, return it
-		if(isSimpleValue(BasicDBObject)) return BasicDbObject;
-
-		if(isArray(BasicDBObject)){
-			var cfObj = [];
-			for(var obj in BasicDBObject){
-				arrayAppend(cfObj, toCF(obj));
-			}
-		}
-		else {
-			var cfObj = {};
-
-			try{
-				cfObj.putAll(BasicDBObject);
-			}
-			catch (any e){
-				if(getMetaData(BasicDBObject).getName() == 'org.bson.BsonUndefined') return javacast("null", "");
-
-				return BasicDBObject;
-			}
-			//loop our keys to ensure first-level items with sub-documents objects are converted
-			for(var key in cfObj){
-				if(!isNull(cfObj[key]) && ( isArray(cfObj[key]) || isStruct(cfObj[key]) ) ){
-					cfObj[key] = toCF(cfObj[key]);
-				}
-				else if(!isNull(cfObj[key]) && isObject(cfObj[key])){
-					switch(getMetadata(cfObj[key]).getCanonicalName()){
-						case "org.bson.types.ObjectId":
-							cfObj[key]=cfObj[key].toString();
-						break;
-						
-						case "org.bson.BsonObjectId": 
-							cfObj[key]=cfObj[key].getValue().toString();
-						break;
-
-						case "java.time.Instant":
-							cfObj[key]=getJavaFactory().getJavaObject("java.util.Date").from(cfObj[key]);
-						break;
-
-						default:
-							cfObj[key]=cfObj[key].getValue();
-						break;
-					}
-					
-				}
-			}
-		}
-
-		//auto-stringify _id 
-		/* if(isStruct(cfObj) && structKeyExists(cfObj,'_id') && !isSimpleValue(cfObj['_id'])){
-			cfObj['_id'] = cfObj['_id'].toString();
-		}  */
-
-		return cfObj;
 	}
 }

@@ -92,6 +92,7 @@ component output="false" accessors="true" {
 
 
 	public any function get(required string key) {
+		// TODO: this is where conversion to CF should happen (?)
 		return getMongoDocument().get(arguments.key);
 	}
 

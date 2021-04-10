@@ -9,8 +9,9 @@ component output="false" accessors="true" {
 
 	// Injected properties (DI)
 	property name="Wirebox" inject="wirebox";
-	property name="Util" inject="Util@box-mongodb-sdk";
-	property name="JavaFactory" inject="JavaFactory@box-mongodb-sdk";
+	//property name="Util" inject="Util@box-mongodb-sdk";
+	//property name="JavaFactory" inject="JavaFactory@box-mongodb-sdk";
+	property name="BsonFactory" inject="BsonFactory@box-mongodb-sdk";
 
 	// Local properties
 	property name="MongoIterable" type="any" default="";
@@ -64,6 +65,15 @@ component output="false" accessors="true" {
 	 * Converts result to array
 	 */
 	public array function toArray() {
-		return getUtil().mongoIterableToArray( getMongoIterable() );
+		var response=[];
+		var cursor=getMongoIterable().iterator();
+
+		while(cursor.hasNext()){
+			response.append(
+				BsonFactory.Document( cursor.next() )
+			)
+		}
+
+		return response;
 	}
 }

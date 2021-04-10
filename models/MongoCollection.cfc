@@ -11,6 +11,7 @@ component output="false" accessors="true" {
 	property name="Util" inject="Util@box-mongodb-sdk";
 	property name="Wirebox" inject="wirebox";
 	property name="JavaFactory" inject="JavaFactory@box-mongodb-sdk";
+	property name="BsonFactory" inject="BsonFactory@box-mongodb-sdk";
 
 	// Local properties
 	property name="MongoCollection" type="any" default="";
@@ -45,100 +46,51 @@ component output="false" accessors="true" {
 
 
 
-	public numeric function count(struct query={}) {
-		var filter=getUtil().toDocument(arguments.query);
-		return getMongoCollection().count(filter);
+	/**
+	 * Counts the number of documents in the collection according to the given options. 
+	 * Note: For a fast count of the total documents in a collection see estimatedDocumentCount().
+	 *
+	 * @filter (optional) The query filter (Document)
+	 * @options (optional) The options describing the count (CountOptions)
+	 */
+	public numeric function countDocuments(
+		Document filter=getBsonFactory().Document(), 
+		CountOptions options=getWirebox().getInstance("CountOptions@box-mongodb-sdk")
+	) {
+		return getMongoCollection().countDocuments(
+			arguments.filter.getMongoDocument(),
+			arguments.options.getCountOptions()
+		);
 	}
 
 
 
 
-	public string function createIndex(required struct keys, struct options={}) {
-		var keysObj=getUtil().toDocument(arguments.keys);
-		var indexOptions=getJavaFactory().getJavaObject("com.mongodb.client.model.IndexOptions");
+	/**
+	 * Gets an estimate of the count of documents in a collection using collection metadata.
+	 */
+	public numeric function estimatedDocumentCount(){
+		return getMongoCollection().estimatedDocumentCount()
+	}
 
-		for(var i in arguments.options){
-			switch(i){
-				case "background":
-					indexOptions.background(javacast("boolean", arguments.options[i]));
-				break;
 
-				case "bits":
-					indexOptions.bits(javacast("int", arguments.options[i]));
-				break;
 
-				case "bucketSize":
-					indexOptions.bucketSize(javacast("double", arguments.options[i]));
-				break;
 
-				case "defaultLanguage":
-					indexOptions.defaultLanguage(javacast("string", arguments.options[i]));
-				break;
-
-				case "expireAfter":
-					var tuObj=getJavaFactory().getJavaObject("java.util.concurrent.TimeUnit");
-					var tu=tuObj[arguments.options[i]["timeUnit"]];
-					indexOptions.expireAfter(javacast("long", arguments.options[i]["expireAfter"]), tu);
-				break;
-
-				case "languageOverride":
-					indexOptions.languageOverride(javacast("string", arguments.options[i]));
-				break;
-
-				case "max":
-					indexOptions.max(javacast("double", arguments.options[i]));
-				break;
-
-				case "min":
-					indexOptions.min(javacast("double", arguments.options[i]));
-				break;
-
-				case "name":
-					indexOptions.name(javacast("string", arguments.options[i]));
-				break;
-
-				case "partialFilterExpression":
-					var filter=getUtil().toBsonDocument(arguments.options[i]);
-					indexOptions.partialFilterExpression(filter);
-				break;
-
-				case "sparse":
-					indexOptions.sparse(javacast("boolean", arguments.options[i]));
-				break;
-
-				case "sphereVersion":
-					indexOptions.sphereVersion(javacast("int", arguments.options[i]));
-				break;
-
-				case "storageEngine":
-					var filter=getUtil().toBsonDocument(arguments.options[i]);
-					indexOptions.storageEngine(filter);
-				break;
-
-				case "textVersion":
-					indexOptions.textVersion(javacast("int", arguments.options[i]));
-				break;
-
-				case "unique":
-					indexOptions.unique(javacast("boolean", arguments.options[i]));
-				break;
-
-				case "version":
-					indexOptions.version(javacast("int", arguments.options[i]));
-				break;
-
-				case "weights":
-					var filter=getUtil().toBsonDocument(arguments.options[i]);
-					indexOptions.weights(filter);
-				break;
-			
-				default:
-					throw(type = "box-mongodb-sdk.optionNotImplementedException", message = "Option not implemented", detail="");
-				break;
-			}
-		}
-
-		return getMongoCollection().createIndex(keysObj, indexOptions);
+	/**
+	 * Create an index with the given keys and options.
+	 * Returns index name.
+	 *
+	 * @keys An object describing the index key(s), which may not be null.
+	 * @options The options for the index
+	 */
+	public string function createIndex(
+		required Document keys, 
+		IndexOptions options=getWirebox.getInstance("IndexOptions@box-mongodb-sdk")
+	) {
+		return getMongoCollection().createIndex(
+			arguments.keys.getMongoDocument(), 
+			arguments.options.getIndexOptions()
+		);
 	}
 
 
@@ -226,10 +178,10 @@ component output="false" accessors="true" {
 
 
 
-	public FindIterable function find(struct filter={}) {
+	public FindIterable function find(Document filter={}) {
 		var findIterable=wirebox.getInstance("FindIterable@box-mongodb-sdk");
 
-		var query=getUtil().toDocument(arguments.filter);
+		var query=getUtil().toMongo(arguments.filter);
 		var result=getMongoCollection().find(query);
 
 		findIterable.setMongoIterable(result);
@@ -447,7 +399,7 @@ component output="false" accessors="true" {
 	 * Please note that this behavior is CF-specific, original Java driver does not return any value.
 	 */
 	public struct function insertOne(required struct document, struct options={}) {
-		var doc=getUtil().toDocument(arguments.document);
+		var doc=getUtil().toMongo(arguments.document);
 		var insertOneOptions=getJavaFactory().getJavaObject("com.mongodb.client.model.InsertOneOptions");
 
 		for(var i in arguments.options){

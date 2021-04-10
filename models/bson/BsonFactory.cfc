@@ -27,8 +27,11 @@ component output="false" accessors="true" {
 				if(isStruct(arguments[1])){
 					return getWirebox().getInstance("Document@box-mongodb-sdk").initWithStruct(arguments[1]);
 				}
+				else if(isNull(arguments[1])){
+					return getWirebox().getInstance("Document@box-mongodb-sdk");
+				}
 				else{
-					throw(type = "box-mongodb-sdk.invalidConstructorException", message = "Invalid argument. Please initialize with a struct.", detail="");
+					throw(type = "box-mongodb-sdk.invalidConstructorException", message = "Invalid argument. Please initialize with a struct or null.", detail="");
 				}
 			break;
 

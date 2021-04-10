@@ -46,9 +46,9 @@ component output="false" extends="MongoIterable" accessors="true" {
 
 
 
-	public FindIterable function filter(required struct filter) {
+	public FindIterable function filter(required Document filter) {
 		getMongoIterable().filter(
-			getUtil().toDocument(arguments.filter)
+			getUtil().toMongo(arguments.filter)
 		);
 		return this;
 	}
