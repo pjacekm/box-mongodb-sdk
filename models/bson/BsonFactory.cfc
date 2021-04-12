@@ -6,7 +6,7 @@ component output="false" accessors="true" {
 
 	property name="Wirebox" inject="wirebox";
 
-	public function init(){
+	function init(){
 		return this;
 	}
 
@@ -16,7 +16,7 @@ component output="false" accessors="true" {
 	/**
 	 * Initializes and returns the Document CF-wrapper object. Simulates java method overloading: initializes object with nothing, key-value or struct.
 	 */
-	public function Document() {
+	function Document() {
 		
 		switch(arguments.len()){
 			case 0:
@@ -65,7 +65,7 @@ component output="false" accessors="true" {
 	/**
 	 * Initializes and returns the ObjectId CF-wrapper object. Simulates java method overloading: initializes object with nothing or string representation of _id.
 	 */
-	public function ObjectId() {
+	function ObjectId() {
 		switch(arguments.len()){
 			case 0:
 				return getWirebox().getInstance("ObjectId@box-mongodb-sdk").initEmpty();
@@ -126,7 +126,7 @@ component output="false" accessors="true" {
 	 *
 	 * @number 
 	 */
-	public function Decimal128() {
+	function Decimal128() {
 		switch(arguments.len()){
 			case 1:
 				if( isObject( arguments.number ) ){
@@ -184,7 +184,7 @@ component output="false" accessors="true" {
 	 *
 	 * @number 
 	 */
-	public function Int32(required numeric number) {
+	function Int32(required numeric number) {
 		return getWirebox().getInstance("Int32@box-mongodb-sdk").initWithNumber(arguments.number);
 	}
 
@@ -196,7 +196,7 @@ component output="false" accessors="true" {
 	 *
 	 * @number 
 	 */
-	public function Int64(required numeric number) {
+	function Int64(required numeric number) {
 		return getWirebox().getInstance("Int64@box-mongodb-sdk").initWithNumber(arguments.number);
 	}
 
@@ -211,7 +211,7 @@ component output="false" accessors="true" {
 	 * DateTime(CFdateTimeObject) : inits the object with CF datetime object and system time zone
 	 * DateTime(int year, int month, int dayOfMonth, int hour, int minute, int second, int nanosecond, ZoneId zone): inits the object with year, month (from 1 (January) to 12 (December)), day, hour (from 0 to 23), minute, second, nanosecond (from 0 to 999,999,999) and correctly initialized ZoneId object
 	 */
-	public function DateTime() {
+	function DateTime() {
 		
 		switch(arguments.len()){
 			case 0:
@@ -265,5 +265,42 @@ component output="false" accessors="true" {
 			break;
 		}
 		
+	}
+
+
+
+
+	/**
+	 * Initializes and returns the Null wrapper object.
+	 *
+	 */
+	function Null() {
+		return getWirebox().getInstance("Null@box-mongodb-sdk");
+	}
+
+
+
+
+	/**
+	 * Initializes and returns the RegularExpression wrapper object.
+	 *
+	 */
+	function RegularExpression() {
+		switch(arguments.len()){
+			case 1:
+				return getWirebox().getInstance("RegularExpression@box-mongodb-sdk").initWithPattern(arguments[1]);
+			break;
+
+			case 2:
+				return getWirebox().getInstance("RegularExpression@box-mongodb-sdk").initWithPatternAndOptions(
+					arguments[1],
+					arguments[2]
+				);
+			break;
+		
+			default:
+				throw(type = "box-mongodb-sdk.invalidConstructorException", message = "Invalid or missing arguments", detail="");
+			break;
+		}
 	}
 }

@@ -70,7 +70,9 @@ component output="false" accessors="true" {
 
 		while(cursor.hasNext()){
 			response.append(
-				BsonFactory.Document().setMongoDocument(cursor.next())
+				BsonFactory.Document().setMongoDocument(
+					cursor.next()
+				)
 			)
 		}
 

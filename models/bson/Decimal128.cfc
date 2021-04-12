@@ -1,6 +1,6 @@
 /**
 * @author pjacekm@gmail.com
-* @description I represent org.bson.types.Decimal128. 
+* @description I represent org.bson.types.Decimal128 - a binary integer decimal representation of a 128-bit decimal value, supporting 34 decimal digits of significand and an exponent range of -6143 to +6144.
 */
 
 component output="false" accessors="true" {

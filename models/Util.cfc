@@ -206,7 +206,6 @@ component output="false" accessors="true" {
 				}
 			}
 
-			// Convert to Document
 			return arguments.str;
 		}
 
