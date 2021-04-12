@@ -190,15 +190,10 @@ component output="false" accessors="true" {
 
 
 
-	public FindIterable function find(Document filter={}) {
-		var findIterable=wirebox.getInstance("FindIterable@box-mongodb-sdk");
-
-		var query=getUtil().toMongo(arguments.filter);
-		var result=getMongoCollection().find(query);
-
-		findIterable.setMongoIterable(result);
-
-		return findIterable;
+	public FindIterable function find(Document filter=getBsonFactory().Document()) {
+		return wirebox.getInstance("FindIterable@box-mongodb-sdk").setMongoIterable(
+			getMongoCollection().find(arguments.filter.getMongoDocument())
+		);
 	}
 
 
@@ -221,41 +216,25 @@ component output="false" accessors="true" {
 
 
 
-	public struct function findOneAndDelete(struct filter={}, struct options={}) {
-		var filter=getUtil().toDocument(arguments.filter);
-		var findOneAndDeleteOptions=getJavaFactory().getJavaObject("com.mongodb.client.model.FindOneAndDeleteOptions");
-
-		for(var i in arguments.options){
-			switch(i){
-				case "maxTime":
-					var tuObj=getJavaFactory().getJavaObject("java.util.concurrent.TimeUnit");
-					var tu=tuObj[arguments.options[i]["timeUnit"]];
-					findOneAndDeleteOptions.maxTime(javacast("long", arguments.options[i]["maxTime"]), tu);
-				break;
-
-				case "projection":
-					var filter=getUtil().toBsonDocument(arguments.options[i]);
-					findOneAndDeleteOptions.projection(filter);
-				break;
-
-				case "sort":
-					var filter=getUtil().toBsonDocument(arguments.options[i]);
-					findOneAndDeleteOptions.sort(filter);
-				break;
-			
-				default:
-					throw(type = "box-mongodb-sdk.optionNotImplementedException", message = "Option not implemented", detail="");
-				break;
-			}
-		}
-
-		var result=getMongoCollection().findOneAndDelete(filter, findOneAndDeleteOptions);
+	/**
+	 * Atomically find a document and remove it. 
+	 *
+	 * @filter The query filter to find the document with
+	 * @options The options to apply to the operation
+	 * 
+	 * Returns the document that was removed. If no documents matched the query filter, then null will be returned
+	 */
+	public function findOneAndDelete(
+		required Document filter, 
+		FindOneAndDeleteOptions options=getWirebox().getInstance("FindOneAndDeleteOptions@box-mongodb-sdk")
+	) {
 		
-		if(isNull(result)){
-			throw(type = "box-mongodb-sdk.documentNotFoundException", message = "Document not found", detail="");
-		}
-
-		return getUtil().toCF(result);
+		var result=getMongoCollection().findOneAndDelete(
+			arguments.filter.getMongoDocument(), 
+			arguments.options.getFindOneAndDeleteOptions()
+		);
+		
+		return isNull(result) ? javaCast("null", "") : BsonFactory.Document(result);
 	}
 
 
@@ -407,30 +386,21 @@ component output="false" accessors="true" {
 	 * @document 
 	 * @options 
 	 * 
-	 * Returns newly inserted document, including "_id". 
-	 * Please note that this behavior is CF-specific, original Java driver does not return any value.
+	 * Returns InsertOneResult object. 
 	 */
-	public struct function insertOne(required struct document, struct options={}) {
-		var doc=getUtil().toMongo(arguments.document);
-		var insertOneOptions=getJavaFactory().getJavaObject("com.mongodb.client.model.InsertOneOptions");
+	public InsertOneResult function insertOne(
+		required Document document, 
+		InsertOneOptions options=getWirebox().getInstance("InsertOneOptions@box-mongodb-sdk")
+	) {
 
-		for(var i in arguments.options){
-			switch(i){
-				case "bypassDocumentValidation":
-					insertOneOptions.bypassDocumentValidation(javacast("boolean", arguments.options[i]));
-				break;
-			
-				default:
-					throw(type = "box-mongodb-sdk.optionNotImplementedException", message = "Option not implemented", detail="");
-				break;
-			}
-		}
 
-		getMongoCollection().insertOne(doc, insertOneOptions);
+		return getWirebox().getInstance("InsertOneResult@box-mongodb-sdk").setInsertOneResult(
+			getMongoCollection().insertOne(
+				arguments.document.getMongoDocument(), 
+				arguments.options.getInsertOneOptions()
+			)
+		);
 
-		//document["_id"]=doc["_id"].toString();
-
-		return getUtil().toCF(doc);
 	}
 
 

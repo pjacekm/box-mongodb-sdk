@@ -91,9 +91,8 @@ component output="false" accessors="true" {
 
 
 
-	public any function get(required string key) {
-		// TODO: this is where conversion to CF should happen (?)
-		return getMongoDocument().get(arguments.key);
+	public any function get(required string key, any defaultValue=javaCast("null", "")) {
+		return isNull( getMongoDocument().get(javaCast("string", arguments.key)) ) ? (isNull(arguments.defaultValue) ? javaCast("null", "") : arguments.defaultValue) : getUtil().toCF( getMongoDocument().get(javaCast("string", arguments.key)) );
 	}
 
 

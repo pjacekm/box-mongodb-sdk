@@ -43,6 +43,34 @@ component output="false" accessors="true" {
 
 
 	/**
+	 * Inits with org.bson.BsonObjectId
+	 */	
+	public function initWithBsonObjectId(required any BsonObjectId) {
+		setObjectId(
+			arguments.BsonObjectId.getValue()
+		);
+
+		return this;
+	}
+
+
+
+
+	/**
+	 * Inits with org.bson.types.ObjectId
+	 */	
+	public function initWithObjectId(required any ObjectId) {
+		setObjectId(
+			arguments.ObjectId
+		);
+
+		return this;
+	}
+
+
+
+
+	/**
 	 * Returns underlying java object. Used in util conversion methods.
 	 */
 	public any function getBaseJavaObject() {

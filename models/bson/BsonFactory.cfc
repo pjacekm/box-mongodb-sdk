@@ -37,7 +37,10 @@ component output="false" accessors="true" {
 
 			case 2:
 				try {
-					if(getMetadata(arguments[1]).getName() == "java.lang.String"){
+					if(isStruct(arguments[1]) && isObject(arguments[2]) && arguments[2].getName() == "org.bson.Document"){
+						return getWirebox().getInstance("Document@box-mongodb-sdk").setMongoDocument(arguments[1]);
+					}
+					else if(getMetadata(arguments[1]).getName() == "java.lang.String"){
 						return getWirebox().getInstance("Document@box-mongodb-sdk").initWithKeyValue(arguments[1], arguments[2]);
 					}
 					else{
@@ -70,11 +73,38 @@ component output="false" accessors="true" {
 
 			case 1:
 				try {
-					if(getMetadata(arguments[1]).getName() == "java.lang.String"){
+					var clazzName=getMetadata(arguments[1]).getName();
+
+					if(clazzName == "java.lang.String"){
 						return getWirebox().getInstance("ObjectId@box-mongodb-sdk").initWithId(arguments[1]);
+					}
+					else if (clazzName == "org.bson.BsonObjectId") {
+						return getWirebox().getInstance("ObjectId@box-mongodb-sdk").initWithBsonObjectId(arguments[1]);
+					}
+					else if (clazzName == "org.bson.types.ObjectId") {
+						return getWirebox().getInstance("ObjectId@box-mongodb-sdk").initWithObjectId(arguments[1]);
 					}
 					else{
 						throw(type = "box-mongodb-sdk.invalidConstructorException", message = "Invalid argument. Please initialize with 'java.lang.String'.", detail="");
+					}
+				} 
+				catch (any e) {
+					rethrow;
+				}
+			break;
+
+			case 2:
+				// In order to avoid double metadata evaluation, first argument is Java ObjectId, and second-its metadata.
+				try {
+					var clazzName=arguments[2].getName();
+					switch(clazzName){
+						case "org.bson.types.ObjectId":
+							return getWirebox().getInstance("ObjectId@box-mongodb-sdk").setObjectId(arguments[1]);
+						break;
+					
+						default:
+							throw(type = "box-mongodb-sdk.invalidArgumentException", message = "Invalid argument [2]. Expected 'org.bson.types.ObjectId'.", detail="");
+						break;
 					}
 				} 
 				catch (any e) {
@@ -96,23 +126,53 @@ component output="false" accessors="true" {
 	 *
 	 * @number 
 	 */
-	public function Decimal128(required number) {
-		if( isObject( arguments.number ) ){
-			try {
-				if(getMetadata(arguments.number).getName() == "java.math.BigDecimal"){
-					return getWirebox().getInstance("Decimal128@box-mongodb-sdk").initWithBigDecimal(arguments.number);
+	public function Decimal128() {
+		switch(arguments.len()){
+			case 1:
+				if( isObject( arguments.number ) ){
+					try {
+						var clazzName=getMetadata(arguments.number).getName();
+		
+						if(clazzName == "java.math.BigDecimal"){
+							return getWirebox().getInstance("Decimal128@box-mongodb-sdk").initWithBigDecimal(arguments.number);
+						}
+						else{
+							throw(type = "box-mongodb-sdk.invalidConstructorException", message = "Invalid argument. Please initialize with 'java.math.BigDecimal'.", detail="");
+						}
+					} 
+					catch (any e) {
+						rethrow;
+					}
 				}
 				else{
-					throw(type = "box-mongodb-sdk.invalidConstructorException", message = "Invalid argument. Please initialize with 'java.math.BigDecimal'.", detail="");
+					return getWirebox().getInstance("Decimal128@box-mongodb-sdk").initWithString(arguments.number);
 				}
-			} 
-			catch (any e) {
-				rethrow;
-			}
+			break;
+
+			case 2:
+				// In order to avoid double metadata evaluation, first argument is Java Decimal128, and second-its metadata.
+				try {
+					var clazzName=arguments[2].getName();
+					switch(clazzName){
+						case "org.bson.types.Decimal128":
+							return getWirebox().getInstance("Decimal128@box-mongodb-sdk").setDecimal128(arguments[1]);
+						break;
+					
+						default:
+							throw(type = "box-mongodb-sdk.invalidArgumentException", message = "Invalid argument [2]. Expected 'org.bson.types.Decimal128'.", detail="");
+						break;
+					}
+				} 
+				catch (any e) {
+					rethrow;
+				}
+			break;
+		
+			default:
+				throw(type = "box-mongodb-sdk.invalidConstructorException", message = "Too many arguments", detail="");
+			break;
 		}
-		else{
-			return getWirebox().getInstance("Decimal128@box-mongodb-sdk").initWithString(arguments.number);
-		}
+		
 		
 	}
 
@@ -181,7 +241,24 @@ component output="false" accessors="true" {
 				}
 			break;
 
-			
+			case 2:
+				// In order to avoid double metadata evaluation, first argument is Java Date, and second-its metadata.
+				try {
+					var clazzName=arguments[2].getName();
+					switch(clazzName){
+						case "java.util.Date":
+							return getWirebox().getInstance("DateTime@box-mongodb-sdk").initWithJavaDate(arguments[1]);
+						break;
+					
+						default:
+							throw(type = "box-mongodb-sdk.invalidArgumentException", message = "Invalid argument [2]. Expected 'java.util.Date'.", detail="");
+						break;
+					}
+				} 
+				catch (any e) {
+					rethrow;
+				}
+			break;
 		
 			default:
 				throw(type = "box-mongodb-sdk.invalidConstructorException", message = "Invalid arguments", detail="");

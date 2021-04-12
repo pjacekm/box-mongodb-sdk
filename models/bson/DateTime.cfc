@@ -91,9 +91,45 @@ component output="false" accessors="true" {
 
 
 
+	/**
+	 * Inits the object with java.util.Date
+	 * Taking advantage of the fact that it's decorated with CF-specific methods, like dateTimeFormat()
+	 *
+	 * @javaDate The java.util.Date object
+	 */
+	function initWithJavaDate(required javaDate){
+		setZonedDateTime(
+			getJavaFactory().getJavaObject("java.time.ZonedDateTime").ofInstant(
+				arguments.javaDate.toInstant(),
+				getJavaFactory().getJavaObject("java.time.ZoneId").ofOffset( 
+					"UTC",
+					getJavaFactory().getJavaObject("java.time.ZoneOffset").of(
+						arguments.javaDate.dateTimeFormat("Z") 
+					)
+				)
+			)
+		);
+		return this;
+	}
+
+
+
+
+	/**
+	 * Returns CF date time
+	 */
+	date function toCFDateTime(){
+		return getJavaFactory().getJavaObject("java.util.Date").from(
+			getZonedDateTime().toInstant()
+		);
+	}
+
+
+
+
 	
 	/**
-	 * index
+	 * Converts to string
 	 */
 	public string function toString(){
 		return getZonedDateTime().toString();

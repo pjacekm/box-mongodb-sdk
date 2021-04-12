@@ -128,9 +128,6 @@ component output="false" accessors="true" {
 	 * @object Java object (e.g. "org.bson.Document", "org.bson.types.ObjectId", etc.)
 	 */
 	function toCF(required object){
-		writeDump("toCF: TODO:"); abort;
-		
-
 
 		/* Old method:
 			if(isNull(BasicDBObject)) return;
@@ -210,7 +207,7 @@ component output="false" accessors="true" {
 			}
 
 			// Convert to Document
-			return getBsonFactory().Document(arguments.str);
+			return arguments.str;
 		}
 
 		var arrayRecurse=function(required array arr){
@@ -236,31 +233,53 @@ component output="false" accessors="true" {
 			return arguments.arr;
 		}
 
+		var metadata=getMetadata(arguments.object);
 
-		if( isObject( arguments.object ) ){
-			var metadata=getMetadata(arguments.object);
+		// Detect whether argument is a CF wrapper object or raw Java object
+		if(isStruct(metadata) && metadata.keyExists("type") && metadata["type"] == "component"){
+			// CF wrapper object
+			return arguments.object;
+		}
+		else if(isObject(metadata)){
+			// Assuming Java object
+			switch(metadata["name"]){
+				case "org.bson.types.ObjectId":
+					return getBsonFactory().ObjectId(arguments.object, metadata);
+				break;
 
-			// Detect whether argument is a CF wrapper object or raw Java object
-			if(isStruct(metadata) && metadata.keyExists("type") && metadata["type"] == "component"){
-				// CF wrapper object
-				switch(metadata["name"]){
-					/* case "":
-						
-					break; */
-				
-					default:
-						// Return underlying Java object
-						return arguments.object.getBaseJavaObject();
-					break;
-				}
-			}
-			else if(isObject(metadata)){
-				// Assuming Java object
-				return arguments.object;
-			}
-			else{
-				// TODO: determine whether to convert to native Java, returning unchanged argument for now
-				return arguments.object;
+				case "org.bson.BsonObjectId":
+					return getBsonFactory().ObjectId(arguments.object, metadata);
+				break;
+
+				case "org.bson.types.Decimal128":
+					return getBsonFactory().Decimal128(arguments.object, metadata);
+				break;
+
+				case "java.lang.Integer":
+					return getBsonFactory().Int32(arguments.object, metadata);
+				break;
+
+				case "java.lang.Long":
+					return getBsonFactory().Int64(arguments.object, metadata);
+				break;
+
+				case "java.util.Date":
+					return getBsonFactory().DateTime(arguments.object, metadata);
+				break;
+
+				case "org.bson.Document":
+					return getBsonFactory().Document(arguments.object, metadata);
+				break;
+
+				case "java.util.ArrayList":
+					return arrayRecurse(arguments.object);
+				break;
+			
+				default:
+					// 
+					writeDump("TODO: class name: " & metadata["name"]); abort;
+					
+				break;
 			}
 		}
 		else if( isStruct( arguments.object ) ){
