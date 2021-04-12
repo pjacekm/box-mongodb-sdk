@@ -91,8 +91,44 @@ component output="false" accessors="true" {
 
 
 
+	/**
+	 * Gets the value of the given key, or returning the default value if null. 
+	 *
+	 * @key The key
+	 * @defaultValue What to return if the value is null
+	 */
 	public any function get(required string key, any defaultValue=javaCast("null", "")) {
 		return isNull( getMongoDocument().get(javaCast("string", arguments.key)) ) ? (isNull(arguments.defaultValue) ? javaCast("null", "") : arguments.defaultValue) : getUtil().toCF( getMongoDocument().get(javaCast("string", arguments.key)) );
+	}
+
+
+
+
+	/**
+	 * Gets the value in an embedded document, or returning the default value if null. The array of keys represents a path to the embedded value, drilling down into an embedded document for each key. So to get the embedded value, you would write: 
+	 * 		`name = Document.getEmbedded(["employee", "manager", "name"], "John Smith")` 
+	 * instead of: 
+	 * 		`name = Document.get("employee").get("manager").get("name", "John Smith")`.
+	 *
+	 * @keys Array of keys
+	 * @defaultValue What to return if the value is null
+	 */
+	public any function getEmbedded(required array keys, any defaultValue=""){
+		if(!arguments.keys.len()){
+			throw(type = "box-mongodb-sdk.invalidArgumentException", message = "Keys cannot be empty", detail="", errorCode = "error");
+		}
+		else{
+			try {
+				return getMongoDocument().getEmbedded(arguments.keys, arguments.defaultValue);
+			}
+			catch("java.lang.ClassCastException" e){
+				return javacast("null", "");
+			}
+			catch (any e) {
+				rethrow;
+			}
+			
+		}
 	}
 
 
