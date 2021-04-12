@@ -122,7 +122,7 @@ component output="false" accessors="true" {
 				return getMongoDocument().getEmbedded(arguments.keys, arguments.defaultValue);
 			}
 			catch("java.lang.ClassCastException" e){
-				return javacast("null", "");
+				return arguments.defaultValue;
 			}
 			catch (any e) {
 				rethrow;
