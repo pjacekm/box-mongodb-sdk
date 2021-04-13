@@ -129,63 +129,6 @@ component output="false" accessors="true" {
 	 */
 	function toCF(required object){
 
-		/* Old method:
-			if(isNull(BasicDBObject)) return;
-			
-			//if we're in a loop iteration and the array item is simple, return it
-			if(isSimpleValue(BasicDBObject)) return BasicDbObject;
-
-			if(isArray(BasicDBObject)){
-				var cfObj = [];
-				for(var obj in BasicDBObject){
-					arrayAppend(cfObj, toCF(obj));
-				}
-			}
-			else {
-				var cfObj = {};
-
-				try{
-					cfObj.putAll(BasicDBObject);
-				}
-				catch (any e){
-					if(getMetaData(BasicDBObject).getName() == 'org.bson.BsonUndefined') return javacast("null", "");
-
-					return BasicDBObject;
-				}
-				//loop our keys to ensure first-level items with sub-documents objects are converted
-				for(var key in cfObj){
-					if(!isNull(cfObj[key]) && ( isArray(cfObj[key]) || isStruct(cfObj[key]) ) ){
-						cfObj[key] = toCF(cfObj[key]);
-					}
-					else if(!isNull(cfObj[key]) && isObject(cfObj[key])){
-						switch(getMetadata(cfObj[key]).getCanonicalName()){
-							case "org.bson.types.ObjectId":
-								cfObj[key]=cfObj[key].toString();
-							break;
-							
-							case "org.bson.BsonObjectId": 
-								cfObj[key]=cfObj[key].getValue().toString();
-							break;
-
-							case "java.time.Instant":
-								cfObj[key]=getJavaFactory().getJavaObject("java.util.Date").from(cfObj[key]);
-							break;
-
-							default:
-								cfObj[key]=cfObj[key].getValue();
-							break;
-						}
-						
-					}
-				}
-			}
-
-		
-			return cfObj;
-		*/
-
-
-		
 		// Nested methods
 		var structRecurse=function(required struct str){
 			for(var key in arguments.str){
@@ -241,7 +184,7 @@ component output="false" accessors="true" {
 		}
 		else if(isObject(metadata)){
 			// Assuming Java object
-			switch(metadata["name"]){
+			switch(metadata.getName()){
 				case "org.bson.types.ObjectId":
 					return getBsonFactory().ObjectId(arguments.object);
 				break;
@@ -266,7 +209,7 @@ component output="false" accessors="true" {
 					return getBsonFactory().DateTime(arguments.object);
 				break;
 
-				case "org.bson.Document":
+				case "org.bson.Document": case "org.bson.BsonDocument":
 					return getBsonFactory().Document(arguments.object);
 				break;
 
