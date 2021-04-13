@@ -116,7 +116,7 @@ component output="false" accessors="true" {
 
 
 	/**
-	 * Returns CF date time
+	 * Returns datetime object understood by CF (java.util.Date)
 	 */
 	date function toCFDateTime(){
 		return getJavaFactory().getJavaObject("java.util.Date").from(

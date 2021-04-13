@@ -243,41 +243,39 @@ component output="false" accessors="true" {
 			// Assuming Java object
 			switch(metadata["name"]){
 				case "org.bson.types.ObjectId":
-					return getBsonFactory().ObjectId(arguments.object, metadata);
+					return getBsonFactory().ObjectId(arguments.object);
 				break;
 
 				case "org.bson.BsonObjectId":
-					return getBsonFactory().ObjectId(arguments.object, metadata);
+					return getBsonFactory().ObjectId(arguments.object);
 				break;
 
 				case "org.bson.types.Decimal128":
-					return getBsonFactory().Decimal128(arguments.object, metadata);
+					return getBsonFactory().Decimal128(arguments.object);
 				break;
 
 				case "java.lang.Integer":
-					return getBsonFactory().Int32(arguments.object, metadata);
+					return getBsonFactory().Int32(arguments.object);
 				break;
 
 				case "java.lang.Long":
-					return getBsonFactory().Int64(arguments.object, metadata);
+					return getBsonFactory().Int64(arguments.object);
 				break;
 
 				case "java.util.Date":
-					return getBsonFactory().DateTime(arguments.object, metadata);
+					return getBsonFactory().DateTime(arguments.object);
 				break;
 
 				case "org.bson.Document":
-					return getBsonFactory().Document(arguments.object, metadata);
+					return getBsonFactory().Document(arguments.object);
 				break;
 
 				case "java.util.ArrayList":
 					return arrayRecurse(arguments.object);
 				break;
-			
+
 				default:
-					// 
-					writeDump("TODO: class name: " & metadata["name"]); abort;
-					
+					return arguments.object;	
 				break;
 			}
 		}

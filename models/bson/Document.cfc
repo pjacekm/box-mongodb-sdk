@@ -24,14 +24,44 @@ component output="false" accessors="true" {
 
 
 
+	public function onDIComplete() {
+		return this;
+	}
+
+
+
+
+	function initEmpty(){
+		setMongoDocument(
+			getJavaFactory().getJavaObject("org.bson.Document")
+		);
+		return this;
+	}
+
+
+
+
+	/**
+	 * Created Document from org.bson.BsonDocument or org.bson.Document.
+	 * Does not convert values - please provide pure Java objects.
+	 *
+	 * @bsonDocument 
+	 */
+	function initWithBsonDocument(required bsonDocument){
+		setMongoDocument(bsonDocument);
+		return this;
+	}
+
+
+
+
 	/**
 	 * Creates Document from struct
 	 */
 	public function initWithStruct(required struct map) {
-		getMongoDocument().putAll(
-			getUtil().toMongo(arguments.map)
+		initEmpty().putAll(
+			arguments.map
 		);
-
 		return this;
 	}
 
@@ -42,7 +72,13 @@ component output="false" accessors="true" {
 	 * Creates document with key-value data
 	 */
 	public function initWithKeyValue(required string key, required value) {
-		return this.append(arguments.key, arguments.value);
+		setMongoDocument(
+			getJavaFactory().getJavaObject("org.bson.Document").append(
+				javaCast("string", arguments.key), 
+				getUtil().toMongo(arguments.value)
+			)
+		);
+		return this;
 	}
 
 
@@ -54,21 +90,6 @@ component output="false" accessors="true" {
 	public any function getBaseJavaObject() {
 		return getMongoDocument();
 	}
-
-
-
-
-	
-
-
-
-	public function onDIComplete() {
-		setMongoDocument(
-			getJavaFactory().getJavaObject("org.bson.Document")
-		);
-		return this;
-	}
-
 
 
 
@@ -141,6 +162,14 @@ component output="false" accessors="true" {
 		);
 	}
 
+
+
+
+	void function putAll(required struct map){
+		getMongoDocument().putAll(
+			getUtil().toMongo(arguments.map)
+		);
+	}
 
 
 
