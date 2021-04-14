@@ -124,12 +124,16 @@ component output="false" accessors="true" {
 	 */
 	function Decimal128() {
 		switch(arguments.len()){
+			case 0:
+				throw(type = "box-mongodb-sdk.invalidConstructorException", message = "Missing argument", detail="");
+			break;
+
 			case 1:
-				if( isObject( arguments.number ) ){
+				if( isObject( arguments[1] ) ){
 					try {
-						switch( getMetadata(arguments.number).getName() ){
+						switch( getMetadata(arguments[1]).getName() ){
 							case "java.math.BigDecimal":
-								return getWirebox().getInstance("Decimal128@box-mongodb-sdk").initWithBigDecimal(arguments.number);
+								return getWirebox().getInstance("Decimal128@box-mongodb-sdk").initWithBigDecimal(arguments[1]);
 							break;
 						
 							default:
@@ -142,7 +146,7 @@ component output="false" accessors="true" {
 					}
 				}
 				else{
-					return getWirebox().getInstance("Decimal128@box-mongodb-sdk").initWithString(arguments.number);
+					return getWirebox().getInstance("Decimal128@box-mongodb-sdk").initWithString(arguments[1]);
 				}
 			break;
 
