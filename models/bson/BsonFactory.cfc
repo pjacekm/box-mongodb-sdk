@@ -186,6 +186,18 @@ component output="false" accessors="true" {
 
 
 	/**
+	 * Initializes and returns the Double wrapper object.
+	 *
+	 * @number 
+	 */
+	function Double(required numeric number) {
+		return getWirebox().getInstance("Double@box-mongodb-sdk").initWithNumber(arguments.number);
+	}
+
+
+
+
+	/**
 	 * Initializes and returns the DateTime CF-wrapper object. Simulates java method overloading:
 	 * 
 	 * DateTime() : (with no arguments) - inits the object with current datetime and system time zone
