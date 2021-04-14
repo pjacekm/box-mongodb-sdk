@@ -450,10 +450,340 @@ component output="false" accessors="true" {
 
 
 
-	
+	/**
+	 * Creates a filter that matches all documents where the value of a field is an array of the specified size.
+	 *
+	 * @fieldName The field name
+	 * @size The size of the array
+	 */
+	function size(required string fieldName, required numeric size){
+		return getBsonFactory().Document(
+			getJavaFilters().size(
+				javaCast("string", arguments.fieldName),
+				javaCast("int", arguments.size)
+			)
+		);
+	}
 
 
 
 
+	/**
+	 * Creates a filter that matches all documents where all of the bit positions are clear in the field.
+	 *
+	 * @fieldName The field name
+	 * @bitmask The bitmask
+	 */
+	function bitsAllClear(required string fieldName, required numeric bitmask){
+		return getBsonFactory().Document(
+			getJavaFilters().bitsAllClear(
+				javaCast("string", arguments.fieldName),
+				javaCast("long", arguments.bitmask)
+			)
+		);
+	}
+
+
+
+
+	/**
+	 * Creates a filter that matches all documents where all of the bit positions are set in the field.
+	 *
+	 * @fieldName The field name
+	 * @bitmask The bitmask
+	 */
+	function bitsAllSet(required string fieldName, required numeric bitmask){
+		return getBsonFactory().Document(
+			getJavaFilters().bitsAllSet(
+				javaCast("string", arguments.fieldName),
+				javaCast("long", arguments.bitmask)
+			)
+		);
+	}
+
+
+
+
+	/**
+	 * Creates a filter that matches all documents where any of the bit positions are clear in the field.
+	 *
+	 * @fieldName The field name
+	 * @bitmask The bitmask
+	 */
+	function bitsAnyClear(required string fieldName, required numeric bitmask){
+		return getBsonFactory().Document(
+			getJavaFilters().bitsAnyClear(
+				javaCast("string", arguments.fieldName),
+				javaCast("long", arguments.bitmask)
+			)
+		);
+	}
+
+
+
+
+	/**
+	 * Creates a filter that matches all documents where any of the bit positions are set in the field.
+	 *
+	 * @fieldName The field name
+	 * @bitmask The bitmask
+	 */
+	function bitsAnySet(required string fieldName, required numeric bitmask){
+		return getBsonFactory().Document(
+			getJavaFilters().bitsAnySet(
+				javaCast("string", arguments.fieldName),
+				javaCast("long", arguments.bitmask)
+			)
+		);
+	}
+
+
+
+
+	/**
+	 * Creates a filter that matches all documents containing a field with geospatial data that exists entirely within the specified shape.
+	 * See https://docs.mongodb.com/manual/reference/operator/query/geoWithin/
+	 *
+	 * @fieldName The field name
+	 * @geometry The bounding GeoJSON geometry object (Document or struct)
+	 */
+	function geoWithin(required string fieldName, required geometry){
+		return getBsonFactory().Document(
+			getJavaFilters().geoWithin(
+				javaCast("string", arguments.fieldName),
+				getUtil().toMongo(
+					arguments.geometry
+				)
+			)
+		);
+	}
+
+
+
+
+	/**
+	 * Creates a filter that matches all documents containing a field with grid coordinates data that exist entirely within the specified box.
+	 *
+	 * @fieldName The field name 
+	 * @lowerLeftX The lower left x coordinate of the box
+	 * @lowerLeftY The lower left y coordinate of the box
+	 * @upperRightX The upper left x coordinate of the box
+	 * @upperRightY The upper left y coordinate of the box
+	 */
+	function geoWithinBox(
+		required string fieldName, 
+		required numeric lowerLeftX,
+		required numeric lowerLeftY,
+		required numeric upperRightX,
+		required numeric upperRightY
+	){
+		return getBsonFactory().Document(
+			getJavaFilters().geoWithinBox(
+				javaCast("string", arguments.fieldName),
+				javaCast("double", arguments.lowerLeftX),
+				javaCast("double", arguments.lowerLeftY),
+				javaCast("double", arguments.upperRightX),
+				javaCast("double", arguments.upperRightY)
+			)
+		);
+	}
+
+
+
+
+	/**
+	 * Creates a filter that matches all documents containing a field with grid coordinates data that exist entirely within the specified polygon.
+	 * Example:
+	 * 		Filters.geoWithinPolygon(
+	 *			"field_name",
+	 *			[
+	 *				[5.5, 10.0],
+	 *				[15.2, 20.0]
+	 *			]
+	 *		)
+	 * 
+	 *
+	 * @fieldName The field name 
+	 * @points An array of arrays with pairs of x, y coordinates (Double numbers). Any extra dimensions are ignored.
+	 */
+	function geoWithinPolygon(required string fieldName, required array points){
+		return getBsonFactory().Document(
+			getJavaFilters().geoWithinPolygon(
+				javaCast("string", arguments.fieldName),
+				getUtil().toMongo(
+					arguments.points
+				)
+			)
+		);
+	}
+
+
+
+
+	/**
+	 * Creates a filter that matches all documents containing a field with grid coordinates data that exist entirely within the specified circle.
+	 *
+	 * @fieldName The field name 
+	 * @x The x coordinate of the circle
+	 * @y The y coordinate of the circle
+	 * @radius The radius of the circle, as measured in the units used by the coordinate system
+	 */
+	function geoWithinCenter(
+		required string fieldName, 
+		required numeric x, 
+		required numeric y, 
+		required numeric radius
+	){
+		return getBsonFactory().Document(
+			getJavaFilters().geoWithinCenter(
+				javaCast("string", arguments.fieldName),
+				javaCast("double", arguments.x),
+				javaCast("double", arguments.y),
+				javaCast("double", arguments.radius)
+			)
+		);
+	}
+
+
+
+
+	/**
+	 * Creates a filter that matches all documents containing a field with geospatial data (GeoJSON or legacy coordinate pairs) that exist entirely within the specified circle, using spherical geometry. If using longitude and latitude, specify longitude first.
+	 *
+	 * @fieldName The field name 
+	 * @x The x coordinate of the circle
+	 * @y The y coordinate of the circle
+	 * @radius The radius of the circle, in radians
+	 */
+	function geoWithinCenterSphere(
+		required string fieldName, 
+		required numeric x, 
+		required numeric y, 
+		required numeric radius
+	){
+		return getBsonFactory().Document(
+			getJavaFilters().geoWithinCenterSphere(
+				javaCast("string", arguments.fieldName),
+				javaCast("double", arguments.x),
+				javaCast("double", arguments.y),
+				javaCast("double", arguments.radius)
+			)
+		);
+	}
+
+
+
+
+	/**
+	 * Creates a filter that matches all documents containing a field with geospatial data that intersects with the specified shape.
+	 * See https://docs.mongodb.com/manual/reference/operator/query/geoIntersects/
+	 *
+	 * @fieldName The field name
+	 * @geometry The bounding GeoJSON geometry object (Document or struct)
+	 */
+	function geoIntersects(required string fieldName, required geometry){
+		return getBsonFactory().Document(
+			getJavaFilters().geoIntersects(
+				javaCast("string", arguments.fieldName),
+				getUtil().toMongo(
+					arguments.geometry
+				)
+			)
+		);
+	}
+
+
+
+
+	/**
+	 * Creates a filter that matches all documents containing a field with geospatial data that is near the specified point.
+	 * See https://docs.mongodb.com/manual/reference/operator/query/near/
+	 *
+	 * @fieldName The field name 
+	 * @x The x coordinate of the circle
+	 * @y The y coordinate of the circle
+	 * @maxDistance The maximum distance from the point, in radians. It may be null.
+	 * @minDistance The minimum distance from the point, in radians. It may be null.
+	 */
+	function near(
+		required string fieldName, 
+		required numeric x, 
+		required numeric y, 
+		numeric maxDistance=javaCast("null", ""),
+		numeric minDistance=javaCast("null", "")
+	){
+		return getBsonFactory().Document(
+			getJavaFilters().near(
+				javaCast("string", arguments.fieldName),
+				javaCast("double", arguments.x),
+				javaCast("double", arguments.y),
+				isNull(arguments.maxDistance) ? javaCast("null", "") : arguments.maxDistance,
+				isNull(arguments.minDistance) ? javaCast("null", "") : arguments.minDistance
+			)
+		);
+	}
+
+
+
+
+	/**
+	 * Creates a filter that matches all documents containing a field with geospatial data that is near the specified point using spherical geometry.
+	 * See https://docs.mongodb.com/manual/reference/operator/query/near/ 
+	 *
+	 * @fieldName The field name 
+	 * @x The x coordinate of the circle
+	 * @y The y coordinate of the circle
+	 * @maxDistance The maximum distance from the point, in radians. It may be null.
+	 * @minDistance The minimum distance from the point, in radians. It may be null.
+	 */
+	function nearSphere(
+		required string fieldName, 
+		required numeric x, 
+		required numeric y, 
+		numeric maxDistance=javaCast("null", ""),
+		numeric minDistance=javaCast("null", "")
+	){
+		return getBsonFactory().Document(
+			getJavaFilters().nearSphere(
+				javaCast("string", arguments.fieldName),
+				javaCast("double", arguments.x),
+				javaCast("double", arguments.y),
+				isNull(arguments.maxDistance) ? javaCast("null", "") : arguments.maxDistance,
+				isNull(arguments.minDistance) ? javaCast("null", "") : arguments.minDistance
+			)
+		);
+	}
+
+
+
+
+	/**
+	 * Creates a filter that matches all documents that validate against the given JSON schema document.
+	 * See https://docs.mongodb.com/manual/reference/operator/query/jsonSchema/
+	 *
+	 * @jsonSchema The JSON schema to validate against (Document or struct)
+	 */
+	function jsonSchema(required jsonSchema){
+		return getBsonFactory().Document(
+			getJavaFilters().jsonSchema(
+				getUtil().toMongo(
+					arguments.jsonSchema
+				)
+			)
+		);
+	}
+
+
+
+
+	/**
+	 * Creates an empty filter that will match all documents.
+	 *
+	 */
+	function empty(){
+		return getBsonFactory().Document(
+			getJavaFilters().empty()
+		);
+	}
 	
 }
