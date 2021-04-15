@@ -38,7 +38,7 @@ component output="false" accessors="true" {
 
 	
 	/**
-	 * Initializes with provided string.
+	 * Initializes with provided number.
 	 *
 	 * @number 
 	 */

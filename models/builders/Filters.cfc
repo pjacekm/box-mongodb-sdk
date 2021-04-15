@@ -1,5 +1,5 @@
 /**
-* 
+* A factory for query filters. CF wrapper for com.mongodb.client.model.Filters.
 */
 
 component output="false" accessors="true" {
