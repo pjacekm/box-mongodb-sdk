@@ -44,7 +44,7 @@ component output="false" accessors="true" {
 
 	/**
 	 * Creates an $addFields pipeline stage
-	 * Usage:
+	 * Usage example:
 	 * 		Aggregates.addFields(
 	 *			[
 	 *				ModelFactory.Field(
@@ -53,7 +53,7 @@ component output="false" accessors="true" {
 	 *				),
 	 *				ModelFactory.Field(
 	 *					"another_name", 
-	 *					BsonFactory.Document({ ... expression ... })
+	 *					"$another_field"
 	 *				)
 	 *			]
 	 *		)
@@ -280,26 +280,61 @@ component output="false" accessors="true" {
 
 	/**
 	 * Creates a $lookup pipeline stage.
-	 *
+	 * Covers the following scenarios (overloaded methods in Java driver):
+	 * 1. lookup(String from, Document[] pipeline, String as)
+	 * 		Aggregates.lookup(
+	 *			"collection1",
+	 *			[
+	 *	 			Aggregates.match(Filters.eq("a", "b"))
+	 *			],
+	 *			"outputField"
+	 *		)
 	 * 
+	 * 2. lookup(String from, String localField, String foreignField, String as)
+	 * 		Aggregates.lookup(
+	 *			"collection1",
+	 *			"field1",
+	 *			"field2",
+	 *			"outputField"
+	 *		)
+	 *
+	 * 3. lookup(String from, Variable[] let, Document[] pipeline, String as)
+	 * 		Aggregates.lookup(
+	 *			"collection1",
+	 *			[
+	 *				ModelFactory.Variable("order_item", "$item"),
+	 *				ModelFactory.Variable("order_qty", "$ordered")
+	 *			],
+	 *			[
+	 *				Aggregates.match(Filters.eq("a", "b"))
+	 *			],
+	 *			"outputField"
+	 *		)
 	 */
 	Document function lookup(){
 		switch( arguments.len() ){
 			case 3:
 				// lookup(String from, Document[] pipeline, String as)
 				return getBsonFactory().Document(
-						getJavaAggregates().lookup(
-							javaCast("string", arguments[1]),
-							getUtil().toMongo(arguments[2]),
-							javaCast("string", arguments[3])
-						)
-					);
+					getJavaAggregates().lookup(
+						javaCast("string", arguments[1]),
+						getUtil().toMongo(arguments[2]),
+						javaCast("string", arguments[3])
+					)
+				);
 			break;
 
 			case 4:
 				if( isArray(arguments[2]) && isArray(arguments[3]) ){
 					// lookup(String from, Variable[] let, Document[] pipeline, String as)
-
+					return getBsonFactory().Document(
+						getJavaAggregates().lookup(
+							javaCast("string", arguments[1]),
+							getUtil().toMongo(arguments[2]),
+							getUtil().toMongo(arguments[3]),
+							javaCast("string", arguments[4])
+						)
+					);
 				}
 				else{
 					// lookup(String from, String localField, String foreignField, String as)
@@ -326,17 +361,35 @@ component output="false" accessors="true" {
 
 
 	/**
-	 * 
+	 * Creates a facet pipeline stage
+	 * Example usage:
+	 * 		Aggregates.facet(
+	 *			[
+	 *				ModelFactory.Facet(
+	 *					"categorizedByTags",
+	 *					[
+	 *						BsonFactory.Document("$unwind", "$tags"),
+	 *						BsonFactory.Document("$sortByCount", "$tags")
+	 *					]
+	 *				),
+	 * 				ModelFactory.Facet(
+	 *					"categorizedByPrice",
+	 *					[
+	 *						Aggregates.match(Filters.exists("price", true)),
+	 *						...
+	 *					]
+	 *				),
+	 *				...
+	 *			]
+	 *		)
 	 *
-	 * @fieldName The field name
-	 * @value2 
+	 * @facets The facets to use
 	 */
-	Document function functionname(required string fieldName, required value2){
+	Document function facet(required Facet[] facets){
 		return getBsonFactory().Document(
-			getJavaAggregates().functionname(
-				javaCast("string", arguments.fieldName),
+			getJavaAggregates().facet(
 				getUtil().toMongo(
-					arguments.value2
+					arguments.facets
 				)
 			)
 		);
@@ -346,17 +399,48 @@ component output="false" accessors="true" {
 
 
 	/**
-	 * 
+	 * Creates a graphLookup pipeline stage for the specified filter
+	 * Example usage:
+	 * 		Aggregates.graphLookup(
+	 *			"from",
+	 *			"$startWith",
+	 *			"connectFromField",
+	 *			"connectToField",
+	 *			"as",
+	 *			ModelFactory.GraphLookupOptions()
+	 *				.depthField("depthField")
+	 *				.maxDepth(5)
+	 *				.restrictSearchWithMatch(
+	 *					BsonFactory.Document({ "hobbies" : "golf" })
+	 *				)
+	 *		)
 	 *
-	 * @fieldName The field name
-	 * @value2 
+	 * @from The collection to query
+	 * @startWith The expression to start the graph lookup with (string, struct or Document)
+	 * @connectFromField The from field
+	 * @connectToField The to field
+	 * @as Name of field in output document
+	 * @options Optional values for the graphLookup
 	 */
-	Document function functionname(required string fieldName, required value2){
+	Document function graphLookup(
+		required string from, 
+		required startWith,
+		required string connectFromField,
+		required string connectToField,
+		required string as,
+		GraphLookupOptions options=getModelFactory().GraphLookupOptions()
+	){
 		return getBsonFactory().Document(
-			getJavaAggregates().functionname(
-				javaCast("string", arguments.fieldName),
+			getJavaAggregates().graphLookup(
+				javaCast("string", arguments.from),
 				getUtil().toMongo(
-					arguments.value2
+					arguments.startWith
+				),
+				javaCast("string", arguments.connectFromField),
+				javaCast("string", arguments.connectToField),
+				javaCast("string", arguments.as),
+				getUtil().toMongo(
+					arguments.options
 				)
 			)
 		);
@@ -366,17 +450,77 @@ component output="false" accessors="true" {
 
 
 	/**
-	 * 
+	 * Creates a $group pipeline stage for the specified filter
+	 * Usage examples:
+	 * 		Aggregates.group(
+	 *			BsonFactory.Document({"field": "$field"}),
+	 *			[
+	 *				ModelFactory.BsonField("count", BsonFactory.Document({"$sum": "$field2"}))
+	 *			]
+	 *		)
+ 	 *
+	 *		Aggregates.group(
+	 *			"$field",
+	 *			[
+	 *				ModelFactory.BsonField("count", BsonFactory.Document({"$sum": BsonFactory.Int32(1)}))
+	 *			]
+	 *		)
 	 *
-	 * @fieldName The field name
-	 * @value2 
+	 *		Aggregates.group(
+	 *			BsonFactory.Null(),
+	 *			[
+	 *				ModelFactory.BsonField("count", BsonFactory.Document({"$sum": "$field2"}))
+	 *			]
+	 *		)
+	 *
+	 *		Aggregates.group(
+	 *			javaCast("null", ""),
+	 *			[
+	 *				ModelFactory.BsonField("count", BsonFactory.Document({"$sum": "$field2"}))
+	 *			]
+	 *		)
+	 *
+	 *		Aggregates.group()
+	 *
+	 * @id The id expression for the group, which may be null (or the Null component), string, struct or Document
+	 * @fieldAccumulators Zero or more field accumulator pairs
 	 */
-	Document function functionname(required string fieldName, required value2){
+	Document function group(id=javaCast("null", ""), BsonField[] fieldAccumulators=[]){
 		return getBsonFactory().Document(
-			getJavaAggregates().functionname(
-				javaCast("string", arguments.fieldName),
+			getJavaAggregates().group(
+				isNull(arguments.id) ? javaCast("null", "") : getUtil().toMongo(arguments.id),
+				getUtil().toMongo(arguments.fieldAccumulators)
+			)
+		);
+	}
+
+
+
+
+	/**
+	 * Creates a $unionWith pipeline stage.
+	 * Usage example:
+	 * 		Aggregates.unionWith(
+	 *			"collection",
+	 *			[
+	 *				Aggregates.project(
+	 *					Projections.fields([
+	 *						Projections.include(["field1", "field2"]),
+	 *						Projections.excludeId()
+	 *					])
+	 *				)
+	 *			]
+	 *		)
+	 *
+	 * @collection The name of the collection in the same database to perform the union with.
+	 * @pipeline The pipeline to run on the union.
+	 */
+	Document function unionWith(required string collection, required Document[] pipeline){
+		return getBsonFactory().Document(
+			getJavaAggregates().unionWith(
+				javaCast("string", arguments.collection),
 				getUtil().toMongo(
-					arguments.value2
+					arguments.pipeline
 				)
 			)
 		);
@@ -386,18 +530,26 @@ component output="false" accessors="true" {
 
 
 	/**
-	 * 
+	 * Creates an $unwind pipeline stage for the specified field name, which must be prefixed by a '$' sign.
+	 * Usage example:
+	 * 		Aggregates.unwind(
+	 *			"$fieldName",
+	 *			ModelFactory.UnwindOptions()
+	 *				.preserveNullAndEmptyArrays(true)
+	 *				.includeArrayIndex("arrayIndex")
+	 *		)
 	 *
-	 * @fieldName The field name
-	 * @value2 
+	 * @fieldName The field name, prefixed by a '$' sign
+	 * @unwindOptions Options for the unwind pipeline stage
 	 */
-	Document function functionname(required string fieldName, required value2){
+	Document function unwind(
+		required string fieldName, 
+		UnwindOptions unwindOptions=getModelFactory().UnwindOptions()
+	){
 		return getBsonFactory().Document(
-			getJavaAggregates().functionname(
+			getJavaAggregates().unwind(
 				javaCast("string", arguments.fieldName),
-				getUtil().toMongo(
-					arguments.value2
-				)
+				arguments.unwindOptions.getUnwindOptions()
 			)
 		);
 	}
@@ -406,40 +558,63 @@ component output="false" accessors="true" {
 
 
 	/**
-	 * 
+	 * 1. Creates a $out pipeline stage that writes into the specified collection
+	 * Usage example:
+	 * 		Aggregates.out(
+	 *			"collection1"
+	 *		)
 	 *
-	 * @fieldName The field name
-	 * @value2 
-	 */
-	Document function functionname(required string fieldName, required value2){
-		return getBsonFactory().Document(
-			getJavaAggregates().functionname(
-				javaCast("string", arguments.fieldName),
-				getUtil().toMongo(
-					arguments.value2
-				)
-			)
-		);
-	}
-
-
-
-
-	/**
-	 * 
+	 *	2. Creates a $out pipeline stage that supports outputting to a different database.
+	 *	Usage example:
+	 *		Aggregates.out(
+	 *			"database1",
+	 *			"collection1"
+	 *		)
 	 *
-	 * @fieldName The field name
-	 * @value2 
+	 *	3. Creates a $out pipeline stage that writes out to the specified destination
+	 *	Usage example:
+	 *		Aggregates.out(
+	 *			BsonFactory.Document({ "db": "reporting", "coll": "authors" })
+	 *		)
 	 */
-	Document function functionname(required string fieldName, required value2){
-		return getBsonFactory().Document(
-			getJavaAggregates().functionname(
-				javaCast("string", arguments.fieldName),
-				getUtil().toMongo(
-					arguments.value2
-				)
-			)
-		);
+	Document function out(){
+		switch( arguments.len() ){
+			case 1:
+				if( isSimpleValue(arguments[1]) ){
+					// out(string collectionName)
+					return getBsonFactory().Document(
+						getJavaAggregates().out(
+							javaCast("string", arguments[1])
+						)
+					);
+				}
+				else{
+					// out(Document destination)
+					return getBsonFactory().Document(
+						getJavaAggregates().out(
+							getUtil().toMongo(
+								arguments[1]
+							)
+						)
+					);
+				}
+			break;
+
+			case 2:
+				// out(string databaseName, string collectionName)
+				return getBsonFactory().Document(
+					getJavaAggregates().out(
+						javaCast("string", arguments[1]),
+						javaCast("string", arguments[2])
+					)
+				);
+			break;
+		
+			default:
+				throw(type = "box-mongodb-sdk.invalidConstructorException", message = "Invalid arguments. Usage: 'out(String collectionName)' or 'out(String databaseName, String collectionName)' or 'out(Document destination)'.", detail="");
+			break;
+		}
+		
 	}
 
 

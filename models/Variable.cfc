@@ -1,12 +1,12 @@
 /**
-* CF wrapper for com.mongodb.client.model.Field
+* CF wrapper for com.mongodb.client.model.Variable
 * Should be instantiated via ModelFactory.
 * Example usage:
 	var ModelFactory=getInstance("ModelFactory@box-mongodb-sdk");
 	var BsonFactory=getInstance("BsonFactory@box-mongodb-sdk");
-	var Field=ModelFactory.Field(
+	var Variable=ModelFactory.Variable(
 		"myFieldName", 
-		BsonFactory.Document({ "$add": [ "$totalHomework", "$totalQuiz", "$extraCredit" ] })
+		"$otherField"
 	);
 */
 
@@ -18,7 +18,7 @@ component output="false" accessors="true" {
 	property name="Util" inject="Util@box-mongodb-sdk";
 
 	// Local properties
-	property name="JavaField" type="any";
+	property name="JavaVariable" type="any";
 
 
 	/**
@@ -35,21 +35,21 @@ component output="false" accessors="true" {
 	 * Returns underlying java object. Used in util conversion methods.
 	 */
 	public any function getBaseJavaObject() {
-		return getJavaField();
+		return getJavaVariable();
 	}
 
 
 
 
 	/**
-	 * Creates a new field definition for use in $addFields pipeline stages
+	 * Creates a new variable for the $lookup pipeline stage
 	 *
 	 * @name Field name
 	 * @value Expression. Can be string, struct or Document
 	 */
 	function initWithExpression(required string name, required value){
-		setJavaField(
-			getJavaFactory().getJavaObject("com.mongodb.client.model.Field").init(
+		setJavaVariable(
+			getJavaFactory().getJavaObject("com.mongodb.client.model.Variable").init(
 				javaCast("string", arguments.name),
 				getUtil().toMongo(
 					arguments.value
@@ -63,21 +63,21 @@ component output="false" accessors="true" {
 
 
 	/**
-	 * Returns the name of the field
+	 * Returns the name of the new variable
 	 */
 	string function getName(){
-		return getJavaField().getName();
+		return getJavaVariable().getName();
 	}
 
 
 
 
 	/**
-	 * Returns the value of the field wrapped in appropriate CF container (string as string, Document for structs and Documents)
+	 * Returns the value of the new variable wrapped in appropriate CF container (string as string, Document for structs and Documents)
 	 */
 	function getValue(){
 		return getUtil().toCF(
-			getJavaField().getValue()
+			getJavaVariable().getValue()
 		);
 	}
 }

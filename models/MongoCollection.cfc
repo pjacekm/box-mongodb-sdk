@@ -12,6 +12,7 @@ component output="false" accessors="true" {
 	property name="Wirebox" inject="wirebox";
 	property name="JavaFactory" inject="JavaFactory@box-mongodb-sdk";
 	property name="BsonFactory" inject="BsonFactory@box-mongodb-sdk";
+	property name="ModelFactory" inject="ModelFactory@box-mongodb-sdk";
 
 	// Local properties
 	property name="MongoCollection" type="any" default="";
@@ -55,7 +56,7 @@ component output="false" accessors="true" {
 	 */
 	public numeric function countDocuments(
 		Document filter=getBsonFactory().Document(), 
-		CountOptions options=getWirebox().getInstance("CountOptions@box-mongodb-sdk")
+		CountOptions options=getModelFactory().CountOptions()
 	) {
 		return getMongoCollection().countDocuments(
 			arguments.filter.getMongoDocument(),
@@ -69,8 +70,12 @@ component output="false" accessors="true" {
 	/**
 	 * Gets an estimate of the count of documents in a collection using collection metadata.
 	 */
-	public numeric function estimatedDocumentCount(){
-		return getMongoCollection().estimatedDocumentCount()
+	public numeric function estimatedDocumentCount(
+		EstimatedDocumentCountOptions options=getModelFactory().EstimatedDocumentCountOptions()
+	){
+		return getMongoCollection().estimatedDocumentCount(
+			arguments.options.getEstimatedDocumentCountOptions()
+		)
 	}
 
 

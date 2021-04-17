@@ -24,33 +24,13 @@ component output="false" accessors="true" {
 	 *	);
 	 *
 	 * @fieldName The field name
-	 * @expression The expression (Document)
+	 * @expression The expression (Document, struct or string)
 	 */
-	Field function Field(required string fieldName, required Document expression){
+	Field function Field(required string fieldName, required expression){
 		return getWirebox().getInstance("Field@box-mongodb-sdk").initWithExpression(
 			arguments.fieldName,
 			arguments.expression
 		);
-	}
-
-
-
-
-	/**
-	 * Returns BucketOptions
-	 */
-	BucketOptions function BucketOptions(){
-		return getWirebox().getInstance("BucketOptions@box-mongodb-sdk");
-	}
-
-
-
-
-	/**
-	 * Returns BucketAutoOptions
-	 */
-	BucketAutoOptions function BucketAutoOptions(){
-		return getWirebox().getInstance("BucketAutoOptions@box-mongodb-sdk");
 	}
 
 
@@ -83,6 +63,115 @@ component output="false" accessors="true" {
 				throw(type = "box-mongodb-sdk.invalidConstructorException", message = "Invalid arguments. Usage: 'BsonField(object BsonField)' or 'BsonField(string fieldName, Document fieldValue)'.", detail="");
 			break;
 		}
+	}
+
+
+
+
+	/**
+	 * "Constructor" for Variable. Helps define a new variable to use in the pipeline field stages ("let").
+	 * Example usage:
+	 *	var ModelFactory=getInstance("ModelFactory@box-mongodb-sdk");
+	 *	var BsonFactory=getInstance("BsonFactory@box-mongodb-sdk");
+	 *	var Variable=ModelFactory.Variable(
+	 *		"myFieldName", 
+	 *		"$anotherField"
+	 *	);
+	 *
+	 * @name The field name
+	 * @expression The expression (Document, struct or string)
+	 */
+	Variable function Variable(required string name, required expression){
+		return getWirebox().getInstance("Variable@box-mongodb-sdk").initWithExpression(
+			arguments.name,
+			arguments.expression
+		);
+	}
+
+
+
+
+	/**
+	 * "Constructor" for Facet. Helps define a new a Facet for use in $facet pipeline stages.
+	 * Example usage:
+	 *	var ModelFactory=getInstance("ModelFactory@box-mongodb-sdk");
+	 *	var BsonFactory=getInstance("BsonFactory@box-mongodb-sdk");
+	 *	var Facet=ModelFactory.Facet(
+	 *		"myFacetName", 
+	 *		[
+	 *	 		BsonFactory.Document({ "$unwind": "$tags" }),
+	 *			BsonFactory.Document({ "$sortByCount": "$tags" })
+	 * 		]
+	 *	);
+	 *
+	 * @name The name of this facet
+	 * @pipeline The facet definition pipeline
+	 */
+	Facet function Facet(required string name, required Document[] pipeline){
+		return getWirebox().getInstance("Facet@box-mongodb-sdk").initWithPipeline(
+			arguments.name,
+			arguments.pipeline
+		);
+	}
+
+
+
+
+	/**
+	 * Returns BucketOptions
+	 */
+	BucketOptions function BucketOptions(){
+		return getWirebox().getInstance("BucketOptions@box-mongodb-sdk");
+	}
+
+
+
+
+	/**
+	 * Returns BucketAutoOptions
+	 */
+	BucketAutoOptions function BucketAutoOptions(){
+		return getWirebox().getInstance("BucketAutoOptions@box-mongodb-sdk");
+	}
+
+
+
+
+	/**
+	 * Returns GraphLookupOptions
+	 */
+	GraphLookupOptions function GraphLookupOptions(){
+		return getWirebox().getInstance("GraphLookupOptions@box-mongodb-sdk");
+	}
+
+
+
+
+	/**
+	 * Returns CountOptions
+	 */
+	CountOptions function CountOptions(){
+		return getWirebox().getInstance("CountOptions@box-mongodb-sdk");
+	}
+
+
+
+
+	/**
+	 * Returns EstimatedDocumentCountOptions
+	 */
+	EstimatedDocumentCountOptions function EstimatedDocumentCountOptions(){
+		return getWirebox().getInstance("EstimatedDocumentCountOptions@box-mongodb-sdk");
+	}
+
+
+
+
+	/**
+	 * Returns UnwindOptions
+	 */
+	UnwindOptions function UnwindOptions(){
+		return getWirebox().getInstance("UnwindOptions@box-mongodb-sdk");
 	}
 
 }

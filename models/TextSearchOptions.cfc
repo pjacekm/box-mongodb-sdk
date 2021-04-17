@@ -120,6 +120,6 @@ component output="false" accessors="true" {
 
 
 	string function toString(){
-		return getCountOptions().toString();
+		return getTextSearchOptions().toString();
 	}
 }
