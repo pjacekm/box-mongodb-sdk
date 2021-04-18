@@ -705,11 +705,55 @@ component output="false" accessors="true" {
 
 
 
-	
+	/**
+	 * Creates a $replaceRoot pipeline stage
+	 *
+	 * @value The new root value (string, struct or Document)
+	 */
+	Document function replaceRoot(required value){
+		return getBsonFactory().Document(
+			getJavaAggregates().replaceRoot(
+				getUtil().toMongo(
+					arguments.value
+				)
+			)
+		);
+	}
 
 
 
 
-	
+	/**
+	 * Creates a $replaceRoot pipeline stage.
+	 * With $replaceWith, you can promote an embedded document to the top-level. You can also specify a new document as the replacement.
+	 * The $replaceWith is an alias for replaceRoot().
+	 *
+	 * @value The new root value (string, struct or Document)
+	 */
+	Document function replaceWith(required value){
+		return getBsonFactory().Document(
+			getJavaAggregates().replaceWith(
+				getUtil().toMongo(
+					arguments.value
+				)
+			)
+		);
+	}
+
+
+
+
+	/**
+	 * Creates a $sample pipeline stage with the specified sample size
+	 *
+	 * @size The sample size
+	 */
+	Document function sample(required numeric size){
+		return getBsonFactory().Document(
+			getJavaAggregates().sample(
+				javaCast("int", arguments.size)
+			)
+		);
+	}
 
 }
