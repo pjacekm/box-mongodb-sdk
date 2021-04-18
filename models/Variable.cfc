@@ -63,6 +63,19 @@ component output="false" accessors="true" {
 
 
 	/**
+	 * Creates a new variable for the $lookup pipeline stage
+	 *
+	 * @Variable com.mongodb.client.model.Variable
+	 */
+	Variable function initWithVariable(required Variable){
+		setJavaVariable(arguments.Variable);
+		return this;
+	}
+
+
+
+
+	/**
 	 * Returns the name of the new variable
 	 */
 	string function getName(){

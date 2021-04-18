@@ -223,6 +223,16 @@ component output="false" accessors="true" {
 
 
 	/**
+	 * Gets a string representation of this document.
+	 */
+	public string function toString(){
+		return getMongoDocument().toBsonDocument().toString();
+	}
+
+
+
+
+	/**
 	 * Returns numeric representation of the object. Used for e.g. comparisons.
 	 */
 	public numeric function hashCode(){

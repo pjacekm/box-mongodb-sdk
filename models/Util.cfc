@@ -10,6 +10,7 @@ component output="false" accessors="true" {
 	// Injected properties (DI)
 	property name="JavaFactory" inject="JavaFactory@box-mongodb-sdk";
 	property name="BsonFactory" inject="BsonFactory@box-mongodb-sdk";
+	property name="ModelFactory" inject="ModelFactory@box-mongodb-sdk";
 
 	// Local properties
 	property name="NullSupport" type="boolean" default="false"; // For future use
@@ -132,7 +133,7 @@ component output="false" accessors="true" {
 		// Nested methods
 		var structRecurse=function(required struct str){
 			for(var key in arguments.str){
-				if( isNull( str[key] ) ){
+				if( isNull( arguments.str[key] ) ){
 
 				}
 				else if ( isObject( str[key] ) ){
@@ -161,7 +162,17 @@ component output="false" accessors="true" {
 					arguments.arr[i]=toCF(arguments.arr[i]);
 				}
 				else if ( isStruct( arguments.arr[i] ) ) {
-					arguments.arr[i]=structRecurse(arguments.arr[i]);
+					// Make sure it's a struct and not Mongo Document
+					var tmpMetadata=getMetadata(arguments.arr[i]);
+					switch( tmpMetadata.getName() ){
+						case "org.bson.Document": case "org.bson.BsonDocument":
+							arguments.arr[i]=toCF(arguments.arr[i]);
+						break;
+					
+						default:
+							arguments.arr[i]=structRecurse(arguments.arr[i]);
+						break;
+					}
 				}
 				else if ( isArray( arguments.arr[i] ) ) {
 					arguments.arr[i]=arrayRecurse(arguments.arr[i]);
@@ -197,11 +208,11 @@ component output="false" accessors="true" {
 					return getBsonFactory().Decimal128(arguments.object);
 				break;
 
-				case "java.lang.Integer":
+				case "java.lang.Integer": case "org.bson.BsonInt32":
 					return getBsonFactory().Int32(arguments.object);
 				break;
 
-				case "java.lang.Long":
+				case "java.lang.Long": case "org.bson.BsonInt64":
 					return getBsonFactory().Int64(arguments.object);
 				break;
 
@@ -215,6 +226,14 @@ component output="false" accessors="true" {
 
 				case "java.util.ArrayList":
 					return arrayRecurse(arguments.object);
+				break;
+
+				case "com.mongodb.client.model.Variable":
+					return getModelFactory().Variable(arguments.object);
+				break;
+
+				case "com.mongodb.client.model.BsonField":
+					return getModelFactory().BsonField(arguments.object);
 				break;
 
 				default:

@@ -70,6 +70,10 @@ component output="false" accessors="true" {
 
 	/**
 	 * "Constructor" for Variable. Helps define a new variable to use in the pipeline field stages ("let").
+	 * Covers two scenarios:
+	 * 		ModelFactory.Variable(object Variable)
+	 * 		ModelFactory.Variable(string name, string|struct|Document expression)
+	 * 
 	 * Example usage:
 	 *	var ModelFactory=getInstance("ModelFactory@box-mongodb-sdk");
 	 *	var BsonFactory=getInstance("BsonFactory@box-mongodb-sdk");
@@ -78,14 +82,28 @@ component output="false" accessors="true" {
 	 *		"$anotherField"
 	 *	);
 	 *
-	 * @name The field name
-	 * @expression The expression (Document, struct or string)
 	 */
-	Variable function Variable(required string name, required expression){
-		return getWirebox().getInstance("Variable@box-mongodb-sdk").initWithExpression(
-			arguments.name,
-			arguments.expression
-		);
+	Variable function Variable(){
+		switch( arguments.len() ){
+			case 1:
+				// Assuming the argument is a Java Variable object
+				return getWirebox().getInstance("Variable@box-mongodb-sdk").initWithVariable(
+					arguments[1]
+				);
+			break;
+
+			case 2:
+				return getWirebox().getInstance("Variable@box-mongodb-sdk").initWithExpression(
+					arguments[1],
+					arguments[2]
+				);
+			break;
+		
+			default:
+				throw(type = "box-mongodb-sdk.invalidConstructorException", message = "Invalid arguments. Usage: .", detail="");
+			break;
+		}
+		
 	}
 
 
@@ -172,6 +190,16 @@ component output="false" accessors="true" {
 	 */
 	UnwindOptions function UnwindOptions(){
 		return getWirebox().getInstance("UnwindOptions@box-mongodb-sdk");
+	}
+
+
+
+
+	/**
+	 * Returns MergeOptions
+	 */
+	MergeOptions function MergeOptions(){
+		return getWirebox().getInstance("MergeOptions@box-mongodb-sdk");
 	}
 
 }

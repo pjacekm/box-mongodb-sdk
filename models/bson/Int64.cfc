@@ -42,9 +42,25 @@ component output="false" accessors="true" {
 	 *
 	 * @number 
 	 */
-	function initWithNumber(required numeric number){
+	Int64 function initWithNumber(required numeric number){
 		setBsonInt64(
 			getJavaFactory().getJavaObject("org.bson.BsonInt64").init(arguments.number)
+		);
+		
+		return this;
+	}
+
+
+
+
+	/**
+	 * Initializes with provided Java BsonInt64 object
+	 *
+	 * @BsonInt64 
+	 */
+	Int64 function initWithBsonInt64(required BsonInt64){
+		setBsonInt64(
+			arguments.BsonInt64
 		);
 		
 		return this;

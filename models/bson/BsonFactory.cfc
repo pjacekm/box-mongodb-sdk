@@ -163,11 +163,29 @@ component output="false" accessors="true" {
 
 	/**
 	 * Initializes and returns the Int32 wrapper object.
-	 *
-	 * @number 
+	 * Covers two scenarios:
+	 * 		Int32(object BsonInt32)
+	 * 		Int32(integer number)
+	 *  
 	 */
-	function Int32(required numeric number) {
-		return getWirebox().getInstance("Int32@box-mongodb-sdk").initWithNumber(arguments.number);
+	function Int32() {
+		switch( arguments.len() ){
+			case 1:
+				if( isObject(arguments[1]) ){
+					return getWirebox().getInstance("Int32@box-mongodb-sdk").initWithBsonInt32(arguments[1]);
+				}
+				else if( isValid("integer", arguments[1]) ){
+					return getWirebox().getInstance("Int32@box-mongodb-sdk").initWithNumber(arguments[1]);
+				}
+				else{
+					throw(type = "box-mongodb-sdk.invalidConstructorException", message = "Invalid argument. Usage: 'Int32(object BsonInt32)' or 'Int32(integer number)'.", detail="");
+				}
+			break;
+		
+			default:
+				throw(type = "box-mongodb-sdk.invalidConstructorException", message = "Invalid argument. Usage: 'Int32(object BsonInt32)' or 'Int32(integer number)'.", detail="");
+			break;
+		}
 	}
 
 
@@ -175,11 +193,29 @@ component output="false" accessors="true" {
 
 	/**
 	 * Initializes and returns the Int64 wrapper object.
-	 *
-	 * @number 
+	 * Covers two scenarios:
+	 * 		Int64(object BsonInt64)
+	 * 		Int64(integer number)
+	 *  
 	 */
-	function Int64(required numeric number) {
-		return getWirebox().getInstance("Int64@box-mongodb-sdk").initWithNumber(arguments.number);
+	function Int64() {
+		switch( arguments.len() ){
+			case 1:
+				if( isObject(arguments[1]) ){
+					return getWirebox().getInstance("Int64@box-mongodb-sdk").initWithBsonInt64(arguments[1]);
+				}
+				else if( isValid("integer", arguments[1]) ){
+					return getWirebox().getInstance("Int64@box-mongodb-sdk").initWithNumber(arguments[1]);
+				}
+				else{
+					throw(type = "box-mongodb-sdk.invalidConstructorException", message = "Invalid argument. Usage: 'Int64(object BsonInt64)' or 'Int64(integer number)'.", detail="");
+				}
+			break;
+		
+			default:
+				throw(type = "box-mongodb-sdk.invalidConstructorException", message = "Invalid argument. Usage: 'Int64(object BsonInt64)' or 'Int64(integer number)'.", detail="");
+			break;
+		}
 	}
 
 

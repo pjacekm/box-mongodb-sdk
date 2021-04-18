@@ -9,6 +9,7 @@ component output="false" accessors="true" {
 	property name="Util" inject="Util@box-mongodb-sdk";
 	property name="BsonFactory" inject="BsonFactory@box-mongodb-sdk";
 	property name="ModelFactory" inject="ModelFactory@box-mongodb-sdk";
+	property name="MongoFactory" inject="MongoFactory@box-mongodb-sdk";
 	property name="Wirebox" inject="wirebox";
 
 	// Local properties
@@ -621,201 +622,90 @@ component output="false" accessors="true" {
 
 
 	/**
+	 * 1. Creates a $merge pipeline stage that merges into the specified collection
+	 * Usage example:
+	 * 		Aggregates.merge(
+	 *			"collection1"
+	 *		)
 	 * 
-	 *
-	 * @fieldName The field name
-	 * @value2 
+	 * 2. Creates a $merge pipeline stage that merges into the specified namespace
+	 * Usage example:
+	 * 		Aggregates.merge(
+	 *			MongoFactory.MongoNamespace("db.collection1")
+	 *		)
+	 * 
+	 * 3. Creates a $merge pipeline stage that merges into the specified collection using the specified options.
+	 * Usage example:
+	 * 		Aggregates.merge(
+	 *			"collection1",
+	 * 			ModelFactory.MergeOptions().whenNotMatched("INSERT")
+	 *		)
+	 * 
+	 * 4. Creates a $merge pipeline stage that merges into the specified namespace using the specified options.
+	 * Usage example:
+	 * 		Aggregates.merge(
+	 *			MongoFactory.MongoNamespace("db.collection1"),
+	 * 			ModelFactory.MergeOptions().whenNotMatched("INSERT")
+	 *		)
 	 */
-	Document function functionname(required string fieldName, required value2){
-		return getBsonFactory().Document(
-			getJavaAggregates().functionname(
-				javaCast("string", arguments.fieldName),
-				getUtil().toMongo(
-					arguments.value2
-				)
-			)
-		);
+	Document function merge(){
+		switch( arguments.len() ){
+			case 1:
+				if( isValid("string", arguments[1]) ){
+					// merge(string collectionName)
+					return getBsonFactory().Document(
+						getJavaAggregates().merge(
+							javaCast("string", arguments[1])
+						)
+					);
+				}
+				else if( isInstanceOf(arguments[1], "MongoNamespace") ){
+					// merge(MongoNamespace namespace)
+					return getBsonFactory().Document(
+						getJavaAggregates().merge(
+							arguments[1].getMongoNamespace()
+						)
+					);
+				}
+				else{
+					throw(type = "box-mongodb-sdk.invalidConstructorException", message = "Invalid argument. Usage: 'merge(string collectionName)' or 'merge(MongoNamespace namespace)'.", detail="");
+				}
+			break;
+
+			case 2:
+				if( isValid("string", arguments[1]) && isInstanceOf(arguments[2], "MergeOptions") ){
+					// merge(String collectionName, MergeOptions options)
+					return getBsonFactory().Document(
+						getJavaAggregates().merge(
+							javaCast("string", arguments[1]),
+							arguments[2].getMergeOptions()
+						)
+					);
+				}
+				else if( isInstanceOf(arguments[1], "MongoNamespace") && isInstanceOf(arguments[2], "MergeOptions") ){
+					// merge(MongoNamespace namespace, MergeOptions options)
+					return getBsonFactory().Document(
+						getJavaAggregates().merge(
+							arguments[1].getMongoNamespace(),
+							arguments[2].getMergeOptions()
+						)
+					);
+				}
+				else{
+					throw(type = "box-mongodb-sdk.invalidConstructorException", message = "Invalid argument. Usage: 'merge(String collectionName, MergeOptions options)' or 'merge(MongoNamespace namespace, MergeOptions options)'.", detail="");
+				}
+			break;
+		
+			default:
+				throw(type = "box-mongodb-sdk.invalidConstructorException", message = "Invalid arguments. Usage: 'merge(string collectionName)' or 'merge(MongoNamespace namespace)' or 'merge(String collectionName, MergeOptions options)' or 'merge(MongoNamespace namespace, MergeOptions options)'.", detail="");
+			break;
+		}
 	}
 
 
 
 
-	/**
-	 * 
-	 *
-	 * @fieldName The field name
-	 * @value2 
-	 */
-	Document function functionname(required string fieldName, required value2){
-		return getBsonFactory().Document(
-			getJavaAggregates().functionname(
-				javaCast("string", arguments.fieldName),
-				getUtil().toMongo(
-					arguments.value2
-				)
-			)
-		);
-	}
-
-
-
-
-	/**
-	 * 
-	 *
-	 * @fieldName The field name
-	 * @value2 
-	 */
-	Document function functionname(required string fieldName, required value2){
-		return getBsonFactory().Document(
-			getJavaAggregates().functionname(
-				javaCast("string", arguments.fieldName),
-				getUtil().toMongo(
-					arguments.value2
-				)
-			)
-		);
-	}
-
-
-
-
-	/**
-	 * 
-	 *
-	 * @fieldName The field name
-	 * @value2 
-	 */
-	Document function functionname(required string fieldName, required value2){
-		return getBsonFactory().Document(
-			getJavaAggregates().functionname(
-				javaCast("string", arguments.fieldName),
-				getUtil().toMongo(
-					arguments.value2
-				)
-			)
-		);
-	}
-
-
-
-
-	/**
-	 * 
-	 *
-	 * @fieldName The field name
-	 * @value2 
-	 */
-	Document function functionname(required string fieldName, required value2){
-		return getBsonFactory().Document(
-			getJavaAggregates().functionname(
-				javaCast("string", arguments.fieldName),
-				getUtil().toMongo(
-					arguments.value2
-				)
-			)
-		);
-	}
-
-
-
-
-	/**
-	 * 
-	 *
-	 * @fieldName The field name
-	 * @value2 
-	 */
-	Document function functionname(required string fieldName, required value2){
-		return getBsonFactory().Document(
-			getJavaAggregates().functionname(
-				javaCast("string", arguments.fieldName),
-				getUtil().toMongo(
-					arguments.value2
-				)
-			)
-		);
-	}
-
-
-
-
-	/**
-	 * 
-	 *
-	 * @fieldName The field name
-	 * @value2 
-	 */
-	Document function functionname(required string fieldName, required value2){
-		return getBsonFactory().Document(
-			getJavaAggregates().functionname(
-				javaCast("string", arguments.fieldName),
-				getUtil().toMongo(
-					arguments.value2
-				)
-			)
-		);
-	}
-
-
-
-
-	/**
-	 * 
-	 *
-	 * @fieldName The field name
-	 * @value2 
-	 */
-	Document function functionname(required string fieldName, required value2){
-		return getBsonFactory().Document(
-			getJavaAggregates().functionname(
-				javaCast("string", arguments.fieldName),
-				getUtil().toMongo(
-					arguments.value2
-				)
-			)
-		);
-	}
-
-
-
-
-	/**
-	 * 
-	 *
-	 * @fieldName The field name
-	 * @value2 
-	 */
-	Document function functionname(required string fieldName, required value2){
-		return getBsonFactory().Document(
-			getJavaAggregates().functionname(
-				javaCast("string", arguments.fieldName),
-				getUtil().toMongo(
-					arguments.value2
-				)
-			)
-		);
-	}
-
-
-
-
-	/**
-	 * 
-	 *
-	 * @fieldName The field name
-	 * @value2 
-	 */
-	Document function functionname(required string fieldName, required value2){
-		return getBsonFactory().Document(
-			getJavaAggregates().functionname(
-				javaCast("string", arguments.fieldName),
-				getUtil().toMongo(
-					arguments.value2
-				)
-			)
-		);
-	}
+	
 
 
 

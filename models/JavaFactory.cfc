@@ -34,11 +34,9 @@ component output="false" accessors="true" singleton {
 		var javaLoader=getWirebox().getInstance("JavaLoader@box-mongodb-sdk");
 		var libPaths=getModuleSettings()["libPaths"];
 		var jars=[];
-		var dirList=[];
-		var pidx="";
 		var didx="";
 		
-		cfloop(array="#libPaths#" item="pidx"){
+		for(var pidx in libPaths){
 			var dirList=directoryList( expandPath(pidx), false, "path", "*.jar" );
 			if(arrayLen(dirList)){
 				cfloop(array="#dirList#", item="didx"){
