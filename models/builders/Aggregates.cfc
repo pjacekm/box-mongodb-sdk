@@ -724,7 +724,7 @@ component output="false" accessors="true" {
 
 
 	/**
-	 * Creates a $replaceRoot pipeline stage.
+	 * Creates a $replaceWith pipeline stage.
 	 * With $replaceWith, you can promote an embedded document to the top-level. You can also specify a new document as the replacement.
 	 * The $replaceWith is an alias for replaceRoot().
 	 *
