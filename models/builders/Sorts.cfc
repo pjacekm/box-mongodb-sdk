@@ -8,9 +8,6 @@ component output="false" accessors="true" {
 	property name="JavaFactory" inject="JavaFactory@box-mongodb-sdk";
 	property name="Util" inject="Util@box-mongodb-sdk";
 	property name="BsonFactory" inject="BsonFactory@box-mongodb-sdk";
-	property name="ModelFactory" inject="ModelFactory@box-mongodb-sdk";
-	property name="MongoFactory" inject="MongoFactory@box-mongodb-sdk";
-	property name="Wirebox" inject="wirebox";
 
 	// Local properties
 	property name="JavaSorts";
