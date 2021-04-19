@@ -195,7 +195,8 @@ component output="false" accessors="true" {
 	 * Initializes and returns the Int64 wrapper object.
 	 * Covers two scenarios:
 	 * 		Int64(object BsonInt64)
-	 * 		Int64(integer number)
+	 * 		Int64(long number) or Int64(string number)
+	 * Using string for large numbers (long, e.g. "9223372036854775807") appears to prevent argument truncation by CF (probably auto-conversion to Double)
 	 *  
 	 */
 	function Int64() {
@@ -204,7 +205,7 @@ component output="false" accessors="true" {
 				if( isObject(arguments[1]) ){
 					return getWirebox().getInstance("Int64@box-mongodb-sdk").initWithBsonInt64(arguments[1]);
 				}
-				else if( isValid("integer", arguments[1]) ){
+				else if( isValid("numeric", arguments[1]) ){
 					return getWirebox().getInstance("Int64@box-mongodb-sdk").initWithNumber(arguments[1]);
 				}
 				else{

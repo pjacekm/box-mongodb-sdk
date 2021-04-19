@@ -100,7 +100,7 @@ component output="false" accessors="true" {
 			break;
 		
 			default:
-				throw(type = "box-mongodb-sdk.invalidConstructorException", message = "Invalid arguments. Usage: .", detail="");
+				throw(type = "box-mongodb-sdk.invalidConstructorException", message = "Invalid arguments. Usage: 'Variable(String name, Object value)' or 'Variable(JavaVariable value)'.", detail="");
 			break;
 		}
 		
@@ -200,6 +200,16 @@ component output="false" accessors="true" {
 	 */
 	MergeOptions function MergeOptions(){
 		return getWirebox().getInstance("MergeOptions@box-mongodb-sdk");
+	}
+
+
+
+
+	/**
+	 * Returns PushOptions
+	 */
+	PushOptions function PushOptions(){
+		return getWirebox().getInstance("PushOptions@box-mongodb-sdk");
 	}
 
 }

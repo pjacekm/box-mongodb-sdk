@@ -226,7 +226,7 @@ component output="false" accessors="true" {
 	 * Gets a string representation of this document.
 	 */
 	public string function toString(){
-		return getMongoDocument().toBsonDocument().toString();
+		return getMongoDocument().toString();
 	}
 
 
