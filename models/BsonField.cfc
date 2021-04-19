@@ -8,6 +8,7 @@ component output="false" accessors="true" {
 	// Injected properties (DI)
 	property name="JavaFactory" inject="JavaFactory@box-mongodb-sdk";
 	property name="BsonFactory" inject="BsonFactory@box-mongodb-sdk";
+	property name="Util" inject="Util@box-mongodb-sdk";
 
 	// Local properties
 	property name="BsonField" type="any";
@@ -78,8 +79,8 @@ component output="false" accessors="true" {
 	 * Returns the value of the field wrapped in Document
 	 */
 	Document function getValue(){
-		return getBsonFactory().Document(
-			getBsonField().getValue()
+		return getUtil().toCF(
+			getBsonField().getValue().toBsonDocument()
 		);
 	}
 }
