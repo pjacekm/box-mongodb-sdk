@@ -28,10 +28,14 @@ component output="false" accessors="true" {
 	 * Returns unchanged argument in case it's a Java object.
 	 * Goes over structs and arrays recursively. 
 	 *
-	 * @object Simple value, struct, array or CF wrapper object (e.g. Document, ObjectId, etc.) or Java object (e.g. "org.bson.Document", "org.bson.types.ObjectId", etc.)
+	 * @object Simple value, struct, array, CF wrapper object (e.g. Document, ObjectId, etc.), Java object (e.g. "org.bson.Document", "org.bson.types.ObjectId", etc.) or null.
 	 */
-	function toMongo(required object){
+	function toMongo(object){
 		
+		if( isNull(arguments.object) ){
+			return javaCast("null", "");
+		}
+
 		// Nested methods
 		var structRecurse=function(required struct str){
 			for(var key in arguments.str){
@@ -128,7 +132,11 @@ component output="false" accessors="true" {
 	 *
 	 * @object Java object (e.g. "org.bson.Document", "org.bson.types.ObjectId", etc.)
 	 */
-	function toCF(required object){
+	function toCF(object){
+
+		if( isNull(arguments.object) ){
+			return javaCast("null", "");
+		}
 
 		// Nested methods
 		var structRecurse=function(required struct str){

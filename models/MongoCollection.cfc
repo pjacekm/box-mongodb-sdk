@@ -25,15 +25,19 @@ component output="false" accessors="true" {
 
 
 
+	/**
+	 * Aggregates documents according to the specified aggregation pipeline.
+	 *
+	 * @pipeline The aggregation pipeline
+	 */
 	public AggregateIterable function aggregate(required array pipeline) {
-		var aggregateIterable=wirebox.getInstance("AggregateIterable@box-mongodb-sdk");
-
-		var filter=getUtil().toDocument(arguments.pipeline);
-		var result=getMongoCollection().aggregate(filter);
-
-		aggregateIterable.setMongoIterable(result);
-
-		return aggregateIterable;
+		return wirebox.getInstance("AggregateIterable@box-mongodb-sdk").setMongoIterable(
+			getMongoCollection().aggregate(
+				getUtil().toMongo(
+					arguments.pipeline
+				)
+			)
+		);
 	}
 
 
@@ -195,10 +199,38 @@ component output="false" accessors="true" {
 
 
 
-	public FindIterable function find(Document filter=getBsonFactory().Document()) {
-		return wirebox.getInstance("FindIterable@box-mongodb-sdk").setMongoIterable(
-			getMongoCollection().find(arguments.filter.getMongoDocument())
-		);
+	/**
+	 * Finds all documents in the collection.
+	 * Usage: 
+	 * 		find()
+	 * 		find(Document filter) - can be result of Filters.*()
+	 * 		find(struct filter)
+	 *
+	 * @filter The query filter
+	 */
+	public FindIterable function find() {
+		switch( arguments.len() ){
+			case 0:
+				return wirebox.getInstance("FindIterable@box-mongodb-sdk").setMongoIterable(
+					getMongoCollection().find()
+				);
+			break;
+
+			case 1:
+				return wirebox.getInstance("FindIterable@box-mongodb-sdk").setMongoIterable(
+					getMongoCollection().find(
+						getUtil().toMongo(
+							arguments[1]
+						)
+					)
+				);
+			break;
+		
+			default:
+				throw(type = "box-mongodb-sdk.invalidArgumentsException", message = "Invalid arguments. Usage: 'find()' or 'find(Document filter)' or 'find(struct filter)'.", detail="");
+			break;
+		}
+		
 	}
 
 
@@ -300,60 +332,31 @@ component output="false" accessors="true" {
 
 
 
-	public struct function findOneAndUpdate(struct filter={}, struct update={}, struct options={}) {
-		var filter=getUtil().toDocument(arguments.filter);
-		var findOneAndUpdateOptions=getJavaFactory().getJavaObject("com.mongodb.client.model.FindOneAndUpdateOptions");
-		var updateDocument=getUtil().toDocument(arguments.update);
-
-		for(var i in arguments.options){
-			switch(i){
-				case "bypassDocumentValidation":
-					findOneAndUpdateOptions.bypassDocumentValidation(javacast("boolean", arguments.options[i]));
-				break;
-
-				case "maxTime":
-					var tuObj=getJavaFactory().getJavaObject("java.util.concurrent.TimeUnit");
-					var tu=tuObj[arguments.options[i]["timeUnit"]];
-					findOneAndUpdateOptions.maxTime(javacast("long", arguments.options[i]["maxTime"]), tu);
-				break;
-
-				case "projection":
-					var filter=getUtil().toBsonDocument(arguments.options[i]);
-					findOneAndUpdateOptions.projection(filter);
-				break;
-
-				case "returnDocument":
-					// Two values currently supported: BEFORE, AFTER. Default driver value: BEFORE.
-					var returnDocument=getJavaFactory().getJavaObject("com.mongodb.client.model.ReturnDocument");
-					findOneAndUpdateOptions.returnDocument(returnDocument[uCase(arguments.options[i])]);
-				break;
-
-				case "sort":
-					var filter=getUtil().toBsonDocument(arguments.options[i]);
-					findOneAndUpdateOptions.sort(filter);
-				break;
-
-				case "upsert":
-					findOneAndUpdateOptions.upsert(javacast("boolean", arguments.options[i]));
-				break;
-
-				case "arrayFilters":
-					updateOptions.arrayFilters( getUtil().toDocument(arguments.options[i]) );
-				break;
-			
-				default:
-					throw(type = "box-mongodb-sdk.optionNotImplementedException", message = "Option not implemented", detail="");
-				break;
-			}
-		}
-
-		var result=getMongoCollection().findOneAndUpdate(filter, updateDocument, findOneAndUpdateOptions);
+	/**
+	 * Atomically find a document and update it. 
+	 *
+	 * @filter A document describing the query filter, which may not be null.
+	 * @update A document or pipeline describing the update, which may not be null. The update to apply must include at least one update operator.
+	 * @options The options to apply to the operation.
+	 * 
+	 * Returns the document that was updated: Depending on the value of the returnOriginal option, 
+	 * this will either be the document as it was before the update or as it is after the update. 
+	 * If no documents matched the query filter, then null will be returned
+	 */
+	function findOneAndUpdate(
+		required filter, 
+		required update, 
+		options=getModelFactory().FindOneAndDeleteOptions()
+	) {
 		
-		if(isNull(result)){
-			throw(type = "box-mongodb-sdk.documentNotFoundException", message = "Document not found", detail="");
-		}
-
-		return getUtil().toCF(result);
+		return getUtil().toCF(
+			getMongoCollection().findOneAndUpdate(
+				getUtil().toMongo(arguments.filter), 
+				getUtil().toMongo(arguments.update), 
+				arguments.options.getFindOneAndUpdateOptions()
+			)
+		);
+		
 	}
 
 

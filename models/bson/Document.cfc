@@ -31,7 +31,7 @@ component output="false" accessors="true" {
 
 
 
-	function initEmpty(){
+	Document function initEmpty(){
 		setMongoDocument(
 			getJavaFactory().getJavaObject("org.bson.Document")
 		);
@@ -47,7 +47,7 @@ component output="false" accessors="true" {
 	 *
 	 * @bsonDocument 
 	 */
-	function initWithBsonDocument(required bsonDocument){
+	Document function initWithBsonDocument(required bsonDocument){
 		setMongoDocument(bsonDocument);
 		return this;
 	}
@@ -58,7 +58,7 @@ component output="false" accessors="true" {
 	/**
 	 * Creates Document from struct
 	 */
-	public function initWithStruct(required struct map) {
+	Document function initWithStruct(required struct map) {
 		initEmpty().putAll(
 			arguments.map
 		);
@@ -71,12 +71,10 @@ component output="false" accessors="true" {
 	/**
 	 * Creates document with key-value data
 	 */
-	public function initWithKeyValue(required string key, required value) {
-		setMongoDocument(
-			getJavaFactory().getJavaObject("org.bson.Document").append(
-				javaCast("string", arguments.key), 
-				getUtil().toMongo(arguments.value)
-			)
+	Document function initWithKeyValue(required string key, required value) {
+		initEmpty().append(
+			javaCast("string", arguments.key), 
+			getUtil().toMongo(arguments.value)
 		);
 		return this;
 	}
@@ -155,7 +153,7 @@ component output="false" accessors="true" {
 
 
 
-	public function put(required string key, required any value) {
+	function put(required string key, required any value) {
 		return getMongoDocument().put(
 			javaCast("string", arguments.key), 
 			getUtil().toMongo(arguments.value)

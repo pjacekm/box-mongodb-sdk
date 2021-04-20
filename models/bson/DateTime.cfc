@@ -118,10 +118,20 @@ component output="false" accessors="true" {
 	/**
 	 * Returns datetime object understood by CF (java.util.Date)
 	 */
-	date function toCFDateTime(){
+	date function toDate(){
 		return getJavaFactory().getJavaObject("java.util.Date").from(
 			getZonedDateTime().toInstant()
 		);
+	}
+
+
+
+
+	/**
+	 * Alias for toDate()
+	 */
+	date function toCFDateTime(){
+		return toDate();
 	}
 
 

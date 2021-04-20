@@ -212,4 +212,24 @@ component output="false" accessors="true" {
 		return getWirebox().getInstance("PushOptions@box-mongodb-sdk");
 	}
 
+
+
+
+	/**
+	 * Returns FindOneAndUpdateOptions
+	 */
+	FindOneAndUpdateOptions function FindOneAndUpdateOptions(){
+		return getWirebox().getInstance("FindOneAndUpdateOptions@box-mongodb-sdk");
+	}
+
+
+
+
+	/**
+	 * Returns FindOneAndDeleteOptions
+	 */
+	FindOneAndDeleteOptions function FindOneAndDeleteOptions(){
+		return getWirebox().getInstance("FindOneAndDeleteOptions@box-mongodb-sdk");
+	}
+
 }
