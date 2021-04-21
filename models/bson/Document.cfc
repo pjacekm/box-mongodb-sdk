@@ -231,6 +231,18 @@ component output="false" accessors="true" {
 
 
 	/**
+	 * Returns an array with keys stored in this Document
+	 */
+	array function keySet(){
+		return getUtil().toCF(
+			getMongoDocument().keySet()
+		);
+	}
+
+
+
+
+	/**
 	 * Returns numeric representation of the object. Used for e.g. comparisons.
 	 */
 	public numeric function hashCode(){

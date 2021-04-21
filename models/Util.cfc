@@ -244,6 +244,10 @@ component output="false" accessors="true" {
 					return getModelFactory().BsonField(arguments.object);
 				break;
 
+				case "java.util.LinkedHashMap$LinkedKeySet":
+					return arguments.object.toArray();
+				break;
+
 				default:
 					return arguments.object;	
 				break;
