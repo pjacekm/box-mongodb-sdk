@@ -16,7 +16,7 @@ component output="false" {
 			"libPaths": [
 				"#modulemapping#/lib/"
 			],
-			"mongoDriverVersion": "4.2.2"
+			"mongoDriverVersion": "4.2.3"
 		};
 
 	}
