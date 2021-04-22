@@ -1,7 +1,7 @@
 /**
 *
 * @author pjacekm@gmail.com
-* @description 
+* @description CF wrapper for com.mongodb.client.result.DeleteResult
 *
 */
 

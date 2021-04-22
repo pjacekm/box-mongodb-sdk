@@ -232,4 +232,14 @@ component output="false" accessors="true" {
 		return getWirebox().getInstance("FindOneAndDeleteOptions@box-mongodb-sdk");
 	}
 
+
+
+
+	/**
+	 * Returns DeleteOptions
+	 */
+	DeleteOptions function DeleteOptions(){
+		return getWirebox().getInstance("DeleteOptions@box-mongodb-sdk");
+	}
+
 }

@@ -1,6 +1,6 @@
 /**
 * Wrapper for com.mongodb.client.model.FindOneAndDeleteOptions.
-* Carries the options for a count operation.
+* Carries the options for a findOneAndDelete operation.
 */
 
 component output="false" accessors="true" {

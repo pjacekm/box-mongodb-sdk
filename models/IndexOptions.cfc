@@ -50,7 +50,7 @@ component output="false" accessors="true" {
 	 */
 	public any function collation(required Collation collation){
 		getIndexOptions().collation(
-			arguments.collation.getMongoCollation()
+			arguments.collation.build()
 		);
 		return this;
 	}

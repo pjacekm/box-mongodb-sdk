@@ -11,6 +11,7 @@ component output="false" accessors="true" {
 	property name="JavaFactory" inject="JavaFactory@box-mongodb-sdk";
 	property name="BsonFactory" inject="BsonFactory@box-mongodb-sdk";
 	property name="ModelFactory" inject="ModelFactory@box-mongodb-sdk";
+	property name="MongoFactory" inject="MongoFactory@box-mongodb-sdk";
 
 	// Local properties
 	property name="NullSupport" type="boolean" default="false"; // For future use
@@ -246,6 +247,10 @@ component output="false" accessors="true" {
 
 				case "java.util.LinkedHashMap$LinkedKeySet":
 					return arguments.object.toArray();
+				break;
+
+				case "com.mongodb.ServerAddress":
+					return getMongoFactory().ServerAddress(arguments.object);
 				break;
 
 				default:

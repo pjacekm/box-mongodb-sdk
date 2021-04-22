@@ -43,6 +43,11 @@ component output="false" accessors="true" {
 
 
 
+	/**
+	 * Sets the locale
+	 *
+	 * @locale The locale
+	 */
 	public Collation function locale(required string locale) {
 		getMongoCollation().locale(javaCast("string", arguments.locale));
 		return this;
@@ -51,6 +56,11 @@ component output="false" accessors="true" {
 
 
 
+	/**
+	 * Sets the backwards value. Causes secondary differences to be considered in reverse order, as it is done in the French language.
+	 *
+	 * @backwards The backwards value
+	 */
 	public Collation function backwards(required boolean backwards) {
 		getMongoCollation().backwards(javaCast("boolean", arguments.backwards));
 		return this;
@@ -59,6 +69,11 @@ component output="false" accessors="true" {
 
 
 
+	/**
+	 * Sets the case level value. Turns on case sensitivity.
+	 *
+	 * @caseLevel The case level value
+	 */
 	public Collation function caseLevel(required boolean caseLevel) {
 		getMongoCollation().caseLevel(javaCast("boolean", arguments.caseLevel));
 		return this;
@@ -67,6 +82,11 @@ component output="false" accessors="true" {
 
 
 
+	/**
+	 * Sets the normalization value. If true, normalizes text into Unicode NFD.
+	 *
+	 * @normalization The normalization value
+	 */
 	public Collation function normalization(required boolean normalization) {
 		getMongoCollation().normalization(javaCast("boolean", arguments.normalization));
 		return this;
@@ -75,6 +95,11 @@ component output="false" accessors="true" {
 
 
 
+	/**
+	 * Sets the numeric ordering
+	 *
+	 * @numericOrdering If true will order numbers based on numerical order and not collation order
+	 */
 	public Collation function numericOrdering(required boolean numericOrdering) {
 		getMongoCollation().numericOrdering(javaCast("boolean", arguments.numericOrdering));
 		return this;
@@ -119,7 +144,7 @@ component output="false" accessors="true" {
 
 
 	/**
-	 * Collation case first
+	 * Collation case first. Determines if Uppercase or lowercase values should come first.
 	 *
 	 * @caseFirst One of the following values (all uppercase!):
 	 * 	- LOWER

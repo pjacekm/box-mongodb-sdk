@@ -68,7 +68,7 @@ component output="false" accessors="true" {
 
 
 	public any function getServerAddress() {
-		return getWirebox().getInstance("ServerAddress@box-mongodb-sdk").setServerAddress(
+		return getWirebox().getInstance("MongoFactory@box-mongodb-sdk").ServerAddress(
 			getMongoCursor().getServerAddress()
 		);
 	}

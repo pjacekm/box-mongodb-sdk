@@ -94,7 +94,7 @@ component output="false" accessors="true" {
 	 */
 	public string function createIndex(
 		required Document keys, 
-		IndexOptions options=getWirebox.getInstance("IndexOptions@box-mongodb-sdk")
+		IndexOptions options=getWirebox().getInstance("IndexOptions@box-mongodb-sdk")
 	) {
 		return getMongoCollection().createIndex(
 			arguments.keys.getMongoDocument(), 
@@ -130,15 +130,17 @@ component output="false" accessors="true" {
 
 
 
-	public DeleteResult function deleteMany(struct filter={}) {
-		var deleteResult=wirebox.getInstance("DeleteResult@box-mongodb-sdk");
+	public DeleteResult function deleteMany(
+		Document filter=getBsonFactory().Document(),
+		DeleteOptions options=getModelFactory().DeleteOptions()
+	) {
 
-		var query=getUtil().toDocument(arguments.filter);
-		var result=getMongoCollection().deleteMany(query);
-
-		deleteResult.setMongoDeleteResult(result);
-
-		return deleteResult;
+		return wirebox.getInstance("DeleteResult@box-mongodb-sdk").setMongoDeleteResult(
+			getMongoCollection().deleteMany(
+				arguments.filter.getMongoDocument(),
+				arguments.options.getDeleteOptions()
+			)
+		);
 	}
 
 
@@ -183,8 +185,33 @@ component output="false" accessors="true" {
 
 
 
-	public void function dropIndex(required string indexName) {
-		getMongoCollection().dropIndex(javacast("string", arguments.indexName));
+	/**
+	 * Drops the index.
+	 * Covers two scenarios:
+	 * 		dropIndex(string indexName)
+	 * 		dropIndex(Document keys)
+	 */
+	public void function dropIndex() {
+		switch( arguments.len() ){
+			case 1:
+				if( isValid("string", arguments[1]) ){
+					getMongoCollection().dropIndex(
+						javacast("string", arguments[1])
+					);
+				}
+				else{
+					getMongoCollection().dropIndex(
+						getUtil().toMongo(
+							arguments[1]
+						)
+					);
+				}
+			break;
+		
+			default:
+				throw(type = "box-mongodb-sdk.invalidConstructorException", message = "Invalid arguments. Usage: 'dropIndex(string indexName)' or 'dropIndex(Document keys)'.", detail="");
+			break;
+		}
 	}
 
 
