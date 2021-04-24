@@ -14,9 +14,29 @@ component output="false" extends="MongoIterable" accessors="true" {
 
 
 
-	public DistinctIterable function filter(required struct filter) {
+	/**
+	 * Sets the collation options 
+	 *
+	 * @collation The collation options to use
+	 */
+	public DistinctIterable function collation(required Collation collation){
+		getMongoIterable().collation(
+			arguments.collation.getMongoCollation()
+		);
+		return this;
+	}
+
+
+
+
+	/**
+	 * Sets the query filter to apply to the query.
+	 *
+	 * @filter The filter, which may be Document, struct or Null
+	 */
+	public DistinctIterable function filter(required filter) {
 		getMongoIterable().filter(
-			getUtil().toBsonDocument(arguments.filter)
+			getUtil().toMongo(arguments.filter)
 		);
 		return this;
 	}

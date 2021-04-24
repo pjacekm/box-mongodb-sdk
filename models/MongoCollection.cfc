@@ -130,6 +130,12 @@ component output="false" accessors="true" {
 
 
 
+	/**
+	 * Removes all documents from the collection that match the given query filter. If no documents match, the collection is not modified.
+	 *
+	 * @filter The query filter to apply the the delete operation
+	 * @options The options to apply to the delete operation
+	 */
 	public DeleteResult function deleteMany(
 		Document filter=getBsonFactory().Document(),
 		DeleteOptions options=getModelFactory().DeleteOptions()
@@ -141,43 +147,75 @@ component output="false" accessors="true" {
 				arguments.options.getDeleteOptions()
 			)
 		);
+
 	}
 
 
 
 
-	public DeleteResult function deleteOne(struct filter={}) {
-		var deleteResult=wirebox.getInstance("DeleteResult@box-mongodb-sdk");
+	/**
+	 * Removes at most one document from the collection that matches the given filter. If no documents match, the collection is not modified. 
+	 *
+	 * @filter The query filter to apply the the delete operation
+	 * @options The options to apply to the delete operation
+	 */
+	public DeleteResult function deleteOne(
+		Document filter=getBsonFactory().Document(),
+		DeleteOptions options=getModelFactory().DeleteOptions()
+	) {
 
-		var query=getUtil().toDocument(arguments.filter);
-		var result=getMongoCollection().deleteMany(query);
-
-		deleteResult.setMongoDeleteResult(result);
-
-		return deleteResult;
-	}
-
-
-
-
-	public DistinctIterable function distinct(required string fieldName, struct filter={}) {
-		var distinctIterable=wirebox.getInstance("DistinctIterable@box-mongodb-sdk");
-		var query=getUtil().toDocument(arguments.filter);
-
-		var result=getMongoCollection().distinct(
-			javacast("string", arguments.fieldName), 
-			query, 
-			getJavaFactory().getJavaObject("org.bson.BsonValue").getClass()
+		return wirebox.getInstance("DeleteResult@box-mongodb-sdk").setMongoDeleteResult(
+			getMongoCollection().deleteOne(
+				arguments.filter.getMongoDocument(),
+				arguments.options.getDeleteOptions()
+			)
 		);
 
-		distinctIterable.setMongoIterable(result);
-
-		return distinctIterable;
 	}
 
 
 
 
+	/**
+	 * Gets the distinct values of the specified field name.
+	 * Covers two scenarios:
+	 * 		distinct(string fieldName)
+	 * 		distinct(string fieldName, Document filter)
+	 */
+	public DistinctIterable function distinct() {
+		switch( arguments.len() ){
+			case 1:
+				return getWirebox().getInstance("DistinctIterable@box-mongodb-sdk").setMongoIterable(
+					getMongoCollection().distinct(
+						javacast("string", arguments[1]), 
+						getJavaFactory().getJavaObject("org.bson.BsonValue").getClass()
+					)
+				);
+			break;
+
+			case 2:
+				return getWirebox().getInstance("DistinctIterable@box-mongodb-sdk").setMongoIterable(
+					getMongoCollection().distinct(
+						javacast("string", arguments[1]), 
+						getUtil().toMongo(arguments[2]),
+						getJavaFactory().getJavaObject("org.bson.BsonValue").getClass()
+					)
+				);
+			break;
+		
+			default:
+				throw(type = "box-mongodb-sdk.invalidConstructorException", message = "Invalid arguments. Usage: 'distinct(string fieldName)' or 'distinct(string fieldName, Document filter)'.", detail="");
+			break;
+		}
+		
+	}
+
+
+
+
+	/**
+	 * Drops this collection from the Database.
+	 */
 	public void function drop() {
 		getMongoCollection().drop();
 	}
@@ -267,14 +305,15 @@ component output="false" accessors="true" {
 	 * Creates a change stream for this collection.
 	 */
 	public ChangeStreamIterable function watch(array pipeline=[]){
-		var changeStreamIterable=wirebox.getInstance("ChangeStreamIterable@box-mongodb-sdk");
-		var filter=getUtil().toDocument(arguments.pipeline);
-
-		changeStreamIterable.setChangeStreamIterable(
-			getMongoCollection().watch(filter)
+		
+		return getWirebox().getInstance("ChangeStreamIterable@box-mongodb-sdk").setChangeStreamIterable(
+			getMongoCollection().watch(
+				getUtil().toMongo(
+					arguments.pipeline
+				)
+			)
 		);
 
-		return changeStreamIterable;
 	}
 
 
@@ -290,7 +329,7 @@ component output="false" accessors="true" {
 	 */
 	public function findOneAndDelete(
 		required Document filter, 
-		FindOneAndDeleteOptions options=getWirebox().getInstance("FindOneAndDeleteOptions@box-mongodb-sdk")
+		FindOneAndDeleteOptions options=getModelFactory().FindOneAndDeleteOptions()
 	) {
 		
 		var result=getMongoCollection().findOneAndDelete(
@@ -373,7 +412,7 @@ component output="false" accessors="true" {
 	function findOneAndUpdate(
 		required filter, 
 		required update, 
-		options=getModelFactory().FindOneAndDeleteOptions()
+		options=getModelFactory().FindOneAndUpdateOptions()
 	) {
 		
 		return getUtil().toCF(
