@@ -138,6 +138,18 @@ component output="false" accessors="true" {
 
 
 	/**
+	 * Returns date (converted to UTC) as ISO-8601-formatted string.
+	 */
+	string function toISO8601(){
+		return getZonedDateTime().format(
+			getJavaFactory().getJavaObject("java.time.format.DateTimeFormatter")["ISO_INSTANT"]
+		)
+	}
+
+
+
+
+	/**
 	 * Gets the year field. 
 	 */
 	numeric function getYear(){

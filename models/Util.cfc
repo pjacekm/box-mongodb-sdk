@@ -272,6 +272,145 @@ component output="false" accessors="true" {
 
 
 
+
+	/**
+	 * Utility method for converting standard responses (objects - CF components returned by toCF() method) 
+	 * into simple CF data constructs: strings, numbers, dates, structs, arrays, etc.
+	 *
+	 * @object 
+	 */
+	function toSimpleCF(object){
+
+		if( isNull(arguments.object) ){
+			return javaCast("null", "");
+		}
+
+		// Nested methods
+		var structRecurse=function(required struct str){
+			for(var key in arguments.str){
+				if( isNull( arguments.str[key] ) ){
+
+				}
+				else if ( isObject( str[key] ) ){
+					arguments.str[key]=toSimpleCF(arguments.str[key]);
+				}
+				else if ( isStruct( arguments.str[key] ) ) {
+					arguments.str[key]=structRecurse(arguments.str[key]);
+				}
+				else if ( isArray( arguments.str[key] ) ) {
+					arguments.str[key]=arrayRecurse(arguments.str[key]);
+				}
+				else{
+					// do nothing
+				}
+			}
+
+			return arguments.str;
+		}
+
+		var arrayRecurse=function(required array arr){
+			for (var i = 1; i <= arguments.arr.len(); i++) {
+				if( isNull( arguments.arr[i] ) ){
+					
+				}
+				else if ( isObject( arguments.arr[i] ) ){
+					arguments.arr[i]=toSimpleCF(arguments.arr[i]);
+				}
+				else if ( isStruct( arguments.arr[i] ) ) {
+					arguments.arr[i]=structRecurse(arguments.arr[i]);
+				}
+				else if ( isArray( arguments.arr[i] ) ) {
+					arguments.arr[i]=arrayRecurse(arguments.arr[i]);
+				}
+				else{
+					// do nothing
+				}
+			}
+
+			// Return as-is
+			return arguments.arr;
+		}
+
+		var documentRecurse=function(required Document doc){
+			var response=[:];
+			
+			for(var k in arguments.doc.keySet()){
+				var o=arguments.doc.get( k );
+				
+				if( isObject( o ) ){
+					// CF component
+					response[k]=toSimpleCF( o );
+				}
+				else if( isStruct( o ) ){
+					response[k]=structRecurse( o );					
+				}
+				else if( isArray( o ) ){
+					response[k]=arrayRecurse( o );
+				}
+				else{
+					response[k]=o;					
+				}
+				
+			}
+
+			return response;
+		}
+
+		var metadata=getMetadata(arguments.object);
+
+		// Detect whether argument is a CF wrapper object or raw Java object
+		if(isStruct(metadata) && metadata.keyExists("type") && metadata["type"] == "component"){
+			switch( metadata["name"].listLast(".") ){
+				case "ObjectId":
+					return arguments.object.toString();
+				break;
+
+				case "DateTime":
+					return arguments.object.toDate();
+				break;
+
+				case "Decimal128":
+					return arguments.object.doubleValue();
+				break;
+
+				case "Document":
+					return documentRecurse(arguments.object);
+				break;
+
+				case "Double":
+					return arguments.object.getValue();
+				break;
+
+				case "Int32":
+					return arguments.object.getValue();
+				break;
+
+				case "Int64":
+					return arguments.object.getValue();
+				break;
+
+				case "Null":
+					return javaCast("null", "");
+				break;
+
+				default:
+					return arguments.object;	
+				break;
+			}
+		}
+		else if( isStruct( arguments.object ) ){
+			return structRecurse(arguments.object);
+		}
+		else if( isArray( arguments.object ) ){
+			return arrayRecurse(arguments.object);
+		}
+		else{
+			return arguments.object;
+		}
+	}
+
+
+
 	/**
 	* Converts query struct or pipeline array to MongoDB BsonDocument format. 
 	* Not compatible with older MongoDB versions that still use DBObject 
