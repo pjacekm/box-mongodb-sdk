@@ -116,6 +116,27 @@ component output="false" accessors="true" {
 
 
 	/**
+	 * Inits the object with java.time.Instant
+	 * Taking advantage of the fact that it's decorated with CF-specific methods, like dateTimeFormat()
+	 *
+	 * @javaInstant The java.time.Instant object
+	 */
+	function initWithJavaInstant(required javaInstant){
+		setZonedDateTime(
+			getJavaFactory().getJavaObject("java.time.ZonedDateTime").ofInstant(
+				arguments.javaInstant,
+				getJavaFactory().getJavaObject("java.time.ZoneId").of( 
+					"Z"
+				)
+			)
+		);
+		return this;
+	}
+
+
+
+
+	/**
 	 * Returns datetime object understood by CF (java.util.Date)
 	 */
 	date function toDate(){

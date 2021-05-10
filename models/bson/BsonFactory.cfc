@@ -240,6 +240,7 @@ component output="false" accessors="true" {
 	 * DateTime() : (with no arguments) - inits the object with current datetime and system time zone
 	 * DateTime(string) : inits the object with ISO-8601 string
 	 * DateTime(CFdateTimeObject) : inits the object with CF datetime object and system time zone
+	 * DateTime(java.time.Instant) : inits the object with java Instant
 	 * DateTime(int year, int month, int dayOfMonth, int hour, int minute, int second, int nanosecond, ZoneId zone): inits the object with year, month (from 1 (January) to 12 (December)), day, hour (from 0 to 23), minute, second, nanosecond (from 0 to 999,999,999) and correctly initialized ZoneId object
 	 */
 	function DateTime() {
@@ -258,6 +259,10 @@ component output="false" accessors="true" {
 					if( cn.listLast(".").findNoCase("Date") ){
 						// Init with CF DateTime
 						return getWirebox().getInstance("DateTime@box-mongodb-sdk").initWithCFDateTime( arguments[1] );
+					}
+					else if( cn.listLast(".").findNoCase("Instant") ){
+						// Init with java.time.Instant
+						return getWirebox().getInstance("DateTime@box-mongodb-sdk").initWithJavaInstant( arguments[1] );
 					}
 					else if ( cn.listLast(".") == "String" ) {
 						// Init with ISO-8601 (should also support other formats)
