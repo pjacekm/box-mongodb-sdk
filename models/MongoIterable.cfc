@@ -76,6 +76,8 @@ component output="false" accessors="true" {
 			)
 		}
 
+		cursor.close();
+
 		return response;
 	}
 }
