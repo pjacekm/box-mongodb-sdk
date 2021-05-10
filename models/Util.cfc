@@ -253,6 +253,10 @@ component output="false" accessors="true" {
 					return getMongoFactory().ServerAddress(arguments.object);
 				break;
 
+				case "java.time.Instant":
+					return getBsonFactory().DateTime(arguments.object);
+				break;
+
 				default:
 					return arguments.object;	
 				break;
