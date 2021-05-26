@@ -534,37 +534,24 @@ component output="false" accessors="true" {
 
 
 
-	public UpdateResult function replaceOne(struct filter={}, struct replacement={}, struct options={}) {
-		var updateOptions=getJavaFactory().getJavaObject("com.mongodb.client.model.UpdateOptions");
-		var filter=getUtil().toDocument(arguments.filter);
-		var replaceDocument=getUtil().toDocument(arguments.replacement);
-		var updateResult=wirebox.getInstance("UpdateResult@box-mongodb-sdk");
-
-		for(var i in arguments.options){
-			switch(i){
-				case "bypassDocumentValidation":
-					updateOptions.bypassDocumentValidation(javacast("boolean", arguments.options[i]));
-				break;
-
-				case "upsert":
-					updateOptions.upsert(javacast("boolean", arguments.options[i]));
-				break;
-			
-				default:
-					throw(type = "box-mongodb-sdk.optionNotImplementedException", message = "Option not implemented", detail="");
-				break;
-			}
-		}
-
-		var result=getMongoCollection().replaceOne(filter, replaceDocument, updateOptions);
+	public UpdateResult function replaceOne(
+		Document filter, 
+		Document replacement, 
+		ReplaceOptions replaceOptions=getModelFactory().ReplaceOptions()
+	) {
+		
+		var result=getMongoCollection().replaceOne(
+			arguments.filter.getMongoDocument(), 
+			arguments.replacement.getMongoDocument(), 
+			arguments.replaceOptions.getReplaceOptions()
+		);
 		
 		if(isNull(result)){
 			throw(type = "box-mongodb-sdk.documentNotFoundException", message = "Document not found", detail="");
 		}
 
-		updateResult.setUpdateResult(result);
+		return wirebox.getInstance("UpdateResult@box-mongodb-sdk").setUpdateResult(result);
 
-		return updateResult;
 	}
 
 

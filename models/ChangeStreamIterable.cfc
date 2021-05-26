@@ -71,9 +71,9 @@ component output="false" accessors="true" {
 	 *
 	 * @resumeToken 
 	 */
-	public ChangeStreamIterable function resumeAfter(required struct resumeToken) {
+	public ChangeStreamIterable function resumeAfter(required Document resumeToken) {
 		getChangeStreamIterable().resumeAfter(
-			getUtil().toBsonDocument(arguments.resumeToken)
+			arguments.resumeToken.toBsonDocument()
 		);
 		return this;
 	}
@@ -85,9 +85,9 @@ component output="false" accessors="true" {
 	 *
 	 * @startAfter 
 	 */
-	public ChangeStreamIterable function startAfter(required struct startAfter) {
+	public ChangeStreamIterable function startAfter(required Document startAfter) {
 		getChangeStreamIterable().resumeAfter(
-			getUtil().toBsonDocument(arguments.startAfter)
+			arguments.startAfter.toBsonDocument()
 		);
 		return this;
 	}

@@ -341,7 +341,10 @@ component output="false" accessors="true" {
 			for(var k in arguments.doc.keySet()){
 				var o=arguments.doc.get( k );
 				
-				if( isObject( o ) ){
+				if( isNull( o ) ){
+					response[k]=javaCast("null", "");
+				}
+				else if( isObject( o ) ){
 					// CF component
 					response[k]=toSimpleCF( o );
 				}
@@ -352,7 +355,7 @@ component output="false" accessors="true" {
 					response[k]=arrayRecurse( o );
 				}
 				else{
-					response[k]=o;					
+					response[k]=o;
 				}
 				
 			}

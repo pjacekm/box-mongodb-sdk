@@ -136,17 +136,15 @@ component output="false" accessors="true" {
 		if(!arguments.keys.len()){
 			throw(type = "box-mongodb-sdk.invalidArgumentException", message = "Keys cannot be empty", detail="", errorCode = "error");
 		}
-		else{
-			try {
-				return getMongoDocument().getEmbedded(arguments.keys, arguments.defaultValue);
-			}
-			catch("java.lang.ClassCastException" e){
-				return arguments.defaultValue;
-			}
-			catch (any e) {
-				rethrow;
-			}
-			
+
+		try {
+			return getMongoDocument().getEmbedded(arguments.keys, arguments.defaultValue);
+		}
+		catch("java.lang.ClassCastException" e){
+			return arguments.defaultValue;
+		}
+		catch (any e) {
+			rethrow;
 		}
 	}
 
@@ -247,5 +245,31 @@ component output="false" accessors="true" {
 	 */
 	public numeric function hashCode(){
 		return getMongoDocument().hashCode();
+	}
+
+
+
+
+	/**
+	 * Returns true if this map contains a mapping for the specified key. 
+	 *
+	 * @key 
+	 */
+	boolean function containsKey(required string key){
+		return getMongoDocument().containsKey(arguments.key);
+	}
+
+
+
+
+	/**
+	 * Returns document as CF struct
+	 */
+	function toSimpleCF(){
+		return getUtil().toSimpleCF(
+			getUtil().toCF(
+				getMongoDocument()
+			)
+		)
 	}
 }

@@ -242,4 +242,14 @@ component output="false" accessors="true" {
 		return getWirebox().getInstance("DeleteOptions@box-mongodb-sdk");
 	}
 
+
+
+
+	/**
+	 * Returns ReplaceOptions
+	 */
+	ReplaceOptions function ReplaceOptions() {
+		return getWirebox().getInstance("ReplaceOptions@box-mongodb-sdk");
+	}
+
 }
