@@ -114,9 +114,9 @@ component output="false" extends="MongoIterable" accessors="true" {
 
 
 
-	public FindIterable function sort(required struct sort) {
+	public FindIterable function sort(required Document sort) {
 		getMongoIterable().sort(
-			getUtil().toDocument(arguments.sort)
+			arguments.sort.getMongoDocument()
 		);
 		return this;
 	}
@@ -124,9 +124,9 @@ component output="false" extends="MongoIterable" accessors="true" {
 
 
 
-	public FindIterable function projection(required struct projection) {
+	public FindIterable function projection(required Document projection) {
 		getMongoIterable().projection( 
-			getUtil().toDocument(arguments.projection) 
+			arguments.projection.getMongoDocument()
 		);
 		return this;
 	}
