@@ -320,4 +320,33 @@ component output="false" accessors="true" {
 			break;
 		}
 	}
+
+
+
+
+	function Timestamp(){
+		switch(arguments.len()){
+			case 0:
+				return getWirebox().getInstance("Timestamp@box-mongodb-sdk").initEmpty();
+			break;
+
+			case 1:
+				return getWirebox().getInstance("Timestamp@box-mongodb-sdk").initWithLong(
+					arguments[1]
+				);
+			break;
+
+			case 2:
+				return getWirebox().getInstance("Timestamp@box-mongodb-sdk").initWithSecondsAndInc(
+					arguments[1],
+					arguments[2]
+				);
+			break;
+		
+			default:
+				throw(type = "box-mongodb-sdk.invalidConstructorException", message = "Invalid or missing arguments", detail="Usage: 'Timestamp()' or 'Timestamp(long value)' or 'Timestamp(int seconds, int increment)'");
+			break;
+		}
+		
+	}
 }
